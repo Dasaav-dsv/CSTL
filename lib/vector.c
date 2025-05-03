@@ -1059,7 +1059,7 @@ size_t ndbg_vector_capacity(CSTL_VectorCtx context) {
 }
 
 size_t ndbg_vector_max_size(CSTL_TypeCRef type) {
-    return CSTL_type_divide_by_rcp(SIZE_MAX, type);
+    return CSTL_type_divide_by_rcp((size_t)PTRDIFF_MAX, type);
 }
 
 CSTL_VectorIter ndbg_make_iterator(CSTL_VectorCtx context, const void* pointer) {

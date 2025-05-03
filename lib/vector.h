@@ -349,7 +349,7 @@ size_t CSTL_vector_capacity(CSTL_VectorCtx context);
 /**
  * Returns the maximum possible number of elements in the vector.
  * 
- * As if by `SIZE_MAX / type->size`.
+ * As if by `PTRDIFF_MAX / type->size`.
  * 
  */
 size_t CSTL_vector_max_size(CSTL_TypeCRef type);
