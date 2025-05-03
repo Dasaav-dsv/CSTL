@@ -69,19 +69,6 @@ typedef CSTL_String(Val)* CSTL_String(Ref);
 typedef const CSTL_String(Val)* CSTL_String(CRef);
 
 /**
- * An iterator over elements of a string.
- * 
- * Not ABI-compatible with `std::basic_string::iterator`.
- * 
- */
-typedef struct CSTL_String(Iter) {
-    const CSTL_char_t* pointer;
-#ifndef NDEBUG
-    CSTL_String(CRef) owner;
-#endif
-} CSTL_String(Iter);
-
-/**
  * Initializes the string, but does not allocate any memory.
  * 
  * An initialized string can be trivially destroyed without leaks as long
