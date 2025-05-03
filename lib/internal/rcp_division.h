@@ -53,7 +53,7 @@ static inline size_t CSTL_fixed_point_euclid_rcp(size_t divisor, uint8_t* shift)
     } while (pos < max_pos && (first_quotient < delta
         || (first_quotient == delta && first_remainder == 0)));
 
-    *shift = pos - sz_width;
+    *shift = (uint8_t)(pos - sz_width);
     return second_quotient + 1;
 }
 
