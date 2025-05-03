@@ -6,4 +6,5 @@ set(CMAKE_C_STANDARD 11)
 add_library(CSTL STATIC
     "lib/type.c"
     "lib/vector.c"
+    "lib/xstring.c"
 )
