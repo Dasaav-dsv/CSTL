@@ -345,7 +345,7 @@ bool CSTL_vector_assign_continuous_range(CSTL_VectorCtx context, size_t new_size
     return true;
 }
 
-void CSTL_vector_copy(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc) {
+void CSTL_vector_copy_assign(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc) {
     CSTL_VectorRef instance       = (CSTL_VectorRef)context.instance;
     CSTL_VectorRef other_instance = (CSTL_VectorRef)other_context.instance;
 
@@ -364,7 +364,7 @@ void CSTL_vector_copy(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx 
     CSTL_vector_copy_assign_counted_range(context, other_instance->first, new_size, alloc);
 }
 
-void CSTL_vector_move(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc) {
+void CSTL_vector_move_assign(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc) {
     CSTL_VectorRef instance       = (CSTL_VectorRef)context.instance;
     CSTL_VectorRef other_instance = (CSTL_VectorRef)other_context.instance;
 

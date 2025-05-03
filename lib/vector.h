@@ -131,7 +131,7 @@ bool CSTL_vector_assign_continuous_range(CSTL_VectorCtx context, size_t new_size
  * You are responsible for replacing the allocator outside of `CSTL_VectorVal` if applicable.
  * 
  */
-void CSTL_vector_copy(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc);
+void CSTL_vector_copy_assign(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc);
 
 /**
  * Moves the contents of `other_context->instance` to the contents of `context->instance`.
@@ -146,7 +146,7 @@ void CSTL_vector_copy(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx 
  * You are responsible for replacing the allocator outside of `CSTL_VectorVal` if applicable.
  * 
  */
-void CSTL_vector_move(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc);
+void CSTL_vector_move_assign(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc);
 
 /**
  * Swaps vector contents.

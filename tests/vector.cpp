@@ -235,7 +235,7 @@ TEST_F(VectorTest, VectorCopy) {
         << "must return true on success";
 
     // Will expand storage.
-    CSTL_vector_copy(cstl_vec, alloc, other_vec, alloc, false);
+    CSTL_vector_copy_assign(cstl_vec, alloc, other_vec, alloc, false);
 
     EXPECT_EQ(CSTL_vector_size(cstl_vec), CSTL_vector_size(other_vec))
         << "vectors should have equal size after being copied";
@@ -244,7 +244,7 @@ TEST_F(VectorTest, VectorCopy) {
         << "must return true on success";
 
     // Will reuse storage.
-    CSTL_vector_copy(cstl_vec, alloc, other_vec, alloc, false);
+    CSTL_vector_copy_assign(cstl_vec, alloc, other_vec, alloc, false);
 
     EXPECT_EQ(CSTL_vector_size(cstl_vec), CSTL_vector_size(other_vec))
         << "vectors should have equal size after being copied";
@@ -264,9 +264,9 @@ TEST_F(VectorTest, VectorMove) {
         << "must return true on success";
 
     // Will expand storage.
-    CSTL_vector_move(cstl_vec, alloc, other_vec, alloc, false);
+    CSTL_vector_move_assign(cstl_vec, alloc, other_vec, alloc, false);
     size_t left_size = CSTL_vector_size(cstl_vec);
-    CSTL_vector_move(other_vec, alloc, cstl_vec, alloc, false);
+    CSTL_vector_move_assign(other_vec, alloc, cstl_vec, alloc, false);
     size_t right_size = CSTL_vector_size(other_vec);
 
     EXPECT_EQ(left_size, right_size) << "moving should keep size intact";
@@ -275,9 +275,9 @@ TEST_F(VectorTest, VectorMove) {
         << "must return true on success";
 
     // Will reuse storage.
-    CSTL_vector_move(cstl_vec, alloc, other_vec, alloc, true);
+    CSTL_vector_move_assign(cstl_vec, alloc, other_vec, alloc, true);
     left_size = CSTL_vector_size(cstl_vec);
-    CSTL_vector_move(other_vec, alloc, cstl_vec, alloc, true);
+    CSTL_vector_move_assign(other_vec, alloc, cstl_vec, alloc, true);
     right_size = CSTL_vector_size(other_vec);
 
     EXPECT_EQ(left_size, right_size) << "moving should keep size intact";
