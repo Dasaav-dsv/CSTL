@@ -3,15 +3,6 @@
 #ifndef CSTL_BASIC_STRING_H
 #define CSTL_BASIC_STRING_H
 
-#if defined(__cplusplus)
-#include <cstddef>
-#include <cstdint>
-#else
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#endif
-
 #define CSTL_String__(type, name)  CSTL_ ## type ## String ## name
 #define CSTL_String_(type, name) CSTL_String__(type, name)
 
