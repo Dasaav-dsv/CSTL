@@ -14,12 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct CSTL_SmallAllocFrame {
-    void* pointer;
-    char _buf[512];
-    uintptr_t cookie;
-} CSTL_SmallAllocFrame;
-
 static inline void* CSTL_type_allocate(size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
     size_t size      = count * type->size;
     size_t alignment = CSTL_type_alignment(type);
