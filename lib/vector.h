@@ -178,7 +178,7 @@ const void* CSTL_vector_const_index(CSTL_VectorCtx context, size_t pos);
  * If `pos >= CSTL_vector_size(context)` a null pointer is returned.
  * 
  */
-void* CSTL_vector_get_at(CSTL_VectorCtx context, size_t pos);
+void* CSTL_vector_at(CSTL_VectorCtx context, size_t pos);
 
 /**
  * Returns a const pointer to the element at `pos`.
@@ -186,7 +186,7 @@ void* CSTL_vector_get_at(CSTL_VectorCtx context, size_t pos);
  * If `pos >= CSTL_vector_size(context)` a null pointer is returned.
  * 
  */
-const void* CSTL_vector_const_get_at(CSTL_VectorCtx context, size_t pos);
+const void* CSTL_vector_const_at(CSTL_VectorCtx context, size_t pos);
 
 /**
  * Returns a pointer to the first element in the vector.

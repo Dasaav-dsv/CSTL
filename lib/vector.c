@@ -420,7 +420,7 @@ const void* CSTL_vector_const_index(CSTL_VectorCtx context, size_t pos) {
     return CSTL_vector_index(context, pos);
 }
 
-void* CSTL_vector_get_at(CSTL_VectorCtx context, size_t pos) {
+void* CSTL_vector_at(CSTL_VectorCtx context, size_t pos) {
     CSTL_VectorCRef instance = (CSTL_VectorCRef)context.instance;
     CSTL_TypeCRef type       = (CSTL_TypeCRef)context.type;
 
@@ -438,8 +438,8 @@ void* CSTL_vector_get_at(CSTL_VectorCtx context, size_t pos) {
     return (void*)new_address;
 }
 
-const void* CSTL_vector_const_get_at(CSTL_VectorCtx context, size_t pos) {
-    return (const void*)CSTL_vector_get_at(context, pos);
+const void* CSTL_vector_const_at(CSTL_VectorCtx context, size_t pos) {
+    return (const void*)CSTL_vector_at(context, pos);
 }
 
 void* CSTL_vector_front(CSTL_VectorCtx context) {

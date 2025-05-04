@@ -287,7 +287,7 @@ TEST_F(VectorTest, VectorMove) {
 
 TEST_F(VectorTest, CheckedIndex) {
     for (int i = 0; i < 10; ++i) {
-        ASSERT_EQ(nullptr, CSTL_vector_const_get_at(cstl_vec, i))
+        ASSERT_EQ(nullptr, CSTL_vector_const_at(cstl_vec, i))
             << "the end of the vector must not have accesible elements";
 
         ASSERT_TRUE(CSTL_vector_push_back_const(cstl_vec, cstl_int, alloc))
@@ -300,7 +300,7 @@ TEST_F(VectorTest, CheckedIndex) {
     vector_assert_equal();
 
     for (int i = 0; i < 10; ++i) {
-        ASSERT_NE(nullptr, CSTL_vector_const_get_at(cstl_vec, i))
+        ASSERT_NE(nullptr, CSTL_vector_const_at(cstl_vec, i))
             << "all vector elements must be accesible";
     }
 }
