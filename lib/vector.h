@@ -191,8 +191,7 @@ const void* CSTL_vector_const_get_at(CSTL_VectorCtx context, size_t pos);
 /**
  * Returns a pointer to the first element in the vector.
  * 
- * If `CSTL_vector_empty(context) == true` or if an incompatible
- * `CSTL_Type` is used the behavior is undefined.
+ * If `CSTL_vector_empty(context) == true` the behavior is undefined.
  * 
  */
 void* CSTL_vector_front(CSTL_VectorCtx context);
@@ -200,8 +199,7 @@ void* CSTL_vector_front(CSTL_VectorCtx context);
 /**
  * Returns a const pointer to the first element in the vector.
  * 
- * If `CSTL_vector_empty(context) == true` or if an incompatible
- * `CSTL_Type` is used the behavior is undefined.
+ * If `CSTL_vector_empty(context) == true` the behavior is undefined.
  * 
  */
 const void* CSTL_vector_const_front(CSTL_VectorCtx context);
@@ -209,8 +207,7 @@ const void* CSTL_vector_const_front(CSTL_VectorCtx context);
 /**
  * Returns a pointer to the last element in the vector.
  * 
- * If `CSTL_vector_empty(context) == true` or if an incompatible
- * `CSTL_Type` is used the behavior is undefined.
+ * If `CSTL_vector_empty(context) == true` the behavior is undefined.
  * 
  */
 void* CSTL_vector_back(CSTL_VectorCtx context);
@@ -218,8 +215,7 @@ void* CSTL_vector_back(CSTL_VectorCtx context);
 /**
  * Returns a const pointer to the last element in the vector.
  * 
- * If `CSTL_vector_empty(context) == true` or if an incompatible
- * `CSTL_Type` is used the behavior is undefined.
+ * If `CSTL_vector_empty(context) == true` the behavior is undefined.
  * 
  */
 const void* CSTL_vector_const_back(CSTL_VectorCtx context);
@@ -416,7 +412,7 @@ CSTL_VectorIter CSTL_vector_emplace_const(CSTL_VectorCtx context, CSTL_VectorIte
 CSTL_VectorIter CSTL_vector_erase(CSTL_VectorCtx context, CSTL_VectorIter where);
 
 /**
- * Removes the element in the range `[first, last)` and returns an iterator following the
+ * Removes elements in the range `[first, last)` and returns an iterator following the
  * removed elements.
  * 
  * If `first == last`, no operation is performed.
@@ -451,7 +447,7 @@ CSTL_VectorIter CSTL_vector_emplace_back_const(CSTL_VectorCtx context, const voi
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
-bool CSTL_vector_push(CSTL_VectorCtx context, void* value, CSTL_Alloc* alloc);
+bool CSTL_vector_push_back(CSTL_VectorCtx context, void* value, CSTL_Alloc* alloc);
 
 /**
  * Appends a copy of `value` to the end of the vector.
@@ -460,16 +456,15 @@ bool CSTL_vector_push(CSTL_VectorCtx context, void* value, CSTL_Alloc* alloc);
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
-bool CSTL_vector_push_const(CSTL_VectorCtx context, const void* value, CSTL_Alloc* alloc);
+bool CSTL_vector_push_back_const(CSTL_VectorCtx context, const void* value, CSTL_Alloc* alloc);
 
 /**
  * Removes the last element from the vector.
  * 
- * If `CSTL_vector_empty(context) == true` or if an incompatible
- * `CSTL_Type` is used the behavior is undefined.
+ * If `CSTL_vector_empty(context) == true` the behavior is undefined.
  * 
  */
-void CSTL_vector_pop(CSTL_VectorCtx context);
+void CSTL_vector_pop_back(CSTL_VectorCtx context);
 
 /**
  * Resizes the vector to contain `new_size` elements.

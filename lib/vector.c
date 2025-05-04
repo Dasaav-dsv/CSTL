@@ -968,15 +968,15 @@ CSTL_VectorIter CSTL_vector_emplace_back_const(CSTL_VectorCtx context, const voi
     return CSTL_vector_emplace_const(context, ndbg_vector_end(context), value, alloc);
 }
 
-bool CSTL_vector_push(CSTL_VectorCtx context, void* value, CSTL_Alloc* alloc) {
+bool CSTL_vector_push_back(CSTL_VectorCtx context, void* value, CSTL_Alloc* alloc) {
     return CSTL_vector_emplace_back(context, value, alloc).pointer != context.instance->last;
 }
 
-bool CSTL_vector_push_const(CSTL_VectorCtx context, const void* value, CSTL_Alloc* alloc) {
+bool CSTL_vector_push_back_const(CSTL_VectorCtx context, const void* value, CSTL_Alloc* alloc) {
     return CSTL_vector_emplace_back_const(context, value, alloc).pointer != context.instance->last;
 }
 
-void CSTL_vector_pop(CSTL_VectorCtx context) {
+void CSTL_vector_pop_back(CSTL_VectorCtx context) {
     CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
     CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
 

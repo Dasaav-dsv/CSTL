@@ -142,7 +142,7 @@ TEST_F(VectorTest, Default) {
 
 TEST_F(VectorTest, PushTen) {
     for (int i = 0; i < 10; ++i) {
-        ASSERT_TRUE(CSTL_vector_push_const(cstl_vec, cstl_int, alloc))
+        ASSERT_TRUE(CSTL_vector_push_back_const(cstl_vec, cstl_int, alloc))
             << "must return true on success";
 
             real_vec.push_back(real_int);
@@ -290,7 +290,7 @@ TEST_F(VectorTest, CheckedIndex) {
         ASSERT_EQ(nullptr, CSTL_vector_const_get_at(cstl_vec, i))
             << "the end of the vector must not have accesible elements";
 
-        ASSERT_TRUE(CSTL_vector_push_const(cstl_vec, cstl_int, alloc))
+        ASSERT_TRUE(CSTL_vector_push_back_const(cstl_vec, cstl_int, alloc))
             << "must return true on success";
 
         real_vec.push_back(real_int);
@@ -306,13 +306,13 @@ TEST_F(VectorTest, CheckedIndex) {
 }
 
 TEST_F(VectorTest, FrontAndBack) {
-    ASSERT_TRUE(CSTL_vector_push_const(cstl_vec, cstl_int, alloc))
+    ASSERT_TRUE(CSTL_vector_push_back_const(cstl_vec, cstl_int, alloc))
         << "must return true on success";
 
     ASSERT_EQ(CSTL_vector_const_front(cstl_vec), CSTL_vector_const_back(cstl_vec))
         << "must equal when there is only one element";
 
-    ASSERT_TRUE(CSTL_vector_push_const(cstl_vec, cstl_int, alloc))
+    ASSERT_TRUE(CSTL_vector_push_back_const(cstl_vec, cstl_int, alloc))
         << "must return true on success";
 
     ASSERT_NE(CSTL_vector_const_front(cstl_vec), CSTL_vector_const_back(cstl_vec))
@@ -327,7 +327,7 @@ TEST_F(VectorTest, DataRange) {
 
         real_vec.assign(first, last);
 
-        ASSERT_TRUE(CSTL_vector_push_const(cstl_vec, cstl_int, alloc))
+        ASSERT_TRUE(CSTL_vector_push_back_const(cstl_vec, cstl_int, alloc))
             << "must return true on success";
     }
 
@@ -341,7 +341,7 @@ TEST_F(VectorTest, Reserve) {
     CSTL_VectorIter first = CSTL_vector_begin(cstl_vec);
 
     for (int i = 0; i < 10; ++i) {
-        ASSERT_TRUE(CSTL_vector_push_const(cstl_vec, cstl_int, alloc))
+        ASSERT_TRUE(CSTL_vector_push_back_const(cstl_vec, cstl_int, alloc))
             << "must return true on success";
 
         ASSERT_TRUE(CSTL_vector_iterator_eq(first, CSTL_vector_begin(cstl_vec)))
