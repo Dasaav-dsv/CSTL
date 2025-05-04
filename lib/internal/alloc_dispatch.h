@@ -52,6 +52,8 @@ static inline void* CSTL_small_alloc(CSTL_SmallAllocFrame* frame, size_t size, s
 
 #ifndef NDEBUG
     frame->cookie = frame_base ^ (uintptr_t)cookie;
+#else
+    (void)cookie;
 #endif
 
     if (frame_base + sizeof(frame->_buf) >= alloc_base + size
@@ -68,7 +70,11 @@ static inline void CSTL_small_free(CSTL_SmallAllocFrame* frame, size_t size, siz
     uintptr_t alloc_base  = (uintptr_t)frame->pointer;
     uintptr_t frame_base = (uintptr_t)&frame->_buf;
 
+#ifndef NDEBUG
     assert(frame->cookie == (frame_base ^ cookie));
+#else
+    (void)cookie;
+#endif
 
     if (frame_base + sizeof(frame->_buf) < alloc_base + size
         || frame_base < alloc_base) {
