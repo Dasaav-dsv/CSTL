@@ -25,7 +25,7 @@ static inline void CSTL_type_free(void* memory, size_t count, CSTL_TypeCRef type
     size_t size      = count * type->size;
     size_t alignment = CSTL_type_alignment(type);
 
-    return CSTL_free(memory, size, alignment, alloc);
+    CSTL_free(memory, size, alignment, alloc);
 }
 
 static inline void* CSTL_type_small_alloc(CSTL_SmallAllocFrame* frame, size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
@@ -39,7 +39,7 @@ static inline void CSTL_type_small_free(CSTL_SmallAllocFrame* frame, size_t coun
     size_t size      = count * type->size;
     size_t alignment = CSTL_type_alignment(type);
 
-    return CSTL_small_free(frame, size, alignment, alloc, (uintptr_t)type->size_rcp);
+    CSTL_small_free(frame, size, alignment, alloc, (uintptr_t)type->size_rcp);
 }
 
 static inline void CSTL_type_move_from(void* new_instance, void* src, CSTL_TypeCRef type) {
