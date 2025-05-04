@@ -4,14 +4,7 @@
 #define CSTL_XSTRING_H
 
 #if defined(__cplusplus)
-#include <cuchar>
-#ifndef __cpp_char8_t
-typedef unsigned char char8_t;
-#endif
 extern "C" {
-#else
-#include "uchar.h"
-typedef unsigned char char8_t;
 #endif
 
 #define CSTL_string_type

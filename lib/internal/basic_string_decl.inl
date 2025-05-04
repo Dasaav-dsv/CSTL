@@ -5,10 +5,16 @@
 #if defined(__cplusplus)
 #include <cstddef>
 #include <cstdint>
+#include <cuchar>
+#ifndef __cpp_char8_t
+typedef unsigned char char8_t;
+#endif
 #else
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <uchar.h>
+typedef unsigned char char8_t;
 #endif
 
 #ifndef CSTL_string_type
