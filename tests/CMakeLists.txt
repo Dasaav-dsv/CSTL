@@ -24,6 +24,7 @@ add_executable(CSTL_tests
     "type.cpp"
     "vector.cpp"
     "string.cpp"
+    "wstring.cpp"
 )
 
 target_include_directories(CSTL_tests PRIVATE
