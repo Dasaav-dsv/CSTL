@@ -170,7 +170,7 @@ size_t CSTL_string_(calculate_growth)(size_t requested, size_t old) {
 
     size_t geometric = old + old / 2;
 
-    return geometric < masked ? geometric : masked;
+    return geometric > masked ? geometric : masked;
 }
 
 CSTL_char_t* CSTL_string_(allocate_for_capacity)(size_t capacity, CSTL_Alloc* alloc) {
@@ -232,7 +232,9 @@ bool CSTL_string_(substr)(CSTL_String(Val)* new_instance, CSTL_String(CRef) othe
         return false;
     }
 
-    CSTL_string_(construct)(new_instance);
+    if (new_instance != other) {
+        CSTL_string_(construct)(new_instance);
+    }
 
     return CSTL_string_(assign_substr)(new_instance, other, other_off, count, alloc);
 }
