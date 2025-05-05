@@ -107,8 +107,11 @@ void CSTL_string_(destroy)(CSTL_String(Ref) instance, CSTL_Alloc* alloc);
  * `[other, other + CSTL_*string_size(other)]` returns `false` and does nothing,
  * otherwise it returns `true`.
  * 
- * Remember that re-initializing a string with a backing memory allocation will leak the old
- * memory allocation.
+ * If `new_instance == other` the substring operation is performed in-place without
+ * de-initializing `other`.
+ * 
+ * Remember that re-initializing a different string with a backing memory allocation
+ * will leak the old memory allocation.
  * 
  */
 bool CSTL_string_(substr)(CSTL_String(Val)* new_instance, CSTL_String(CRef) other, size_t other_off, size_t count, CSTL_Alloc* alloc);
