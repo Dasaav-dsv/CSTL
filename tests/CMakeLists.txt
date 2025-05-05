@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(CSTL_tests VERSION 0.1.0.0 LANGUAGES C CXX)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(CSTL STATIC
-    "../lib/type.c"
-    "../lib/vector.c"
-)
+# CSTL
+add_subdirectory("../" "${CMAKE_CURRENT_BINARY_DIR}/CSTL")
 
 include(FetchContent)
 
@@ -25,6 +23,7 @@ include(GoogleTest)
 add_executable(CSTL_tests
     "type.cpp"
     "vector.cpp"
+    "string.cpp"
 )
 
 target_include_directories(CSTL_tests PRIVATE
