@@ -48,7 +48,7 @@ typedef struct CSTL_UTF32StringVal {
 } CSTL_UTF32StringVal;
 
 /**
- * Reference to a mutable `CSTL_*StringVal`.
+ * Reference to a mutable `CSTL_UTF32StringVal`.
  * 
  * Must not be null.
  * 
@@ -56,7 +56,7 @@ typedef struct CSTL_UTF32StringVal {
 typedef CSTL_UTF32StringVal* CSTL_UTF32StringRef;
 
 /**
- * Reference to a const `CSTL_*StringVal`.
+ * Reference to a const `CSTL_UTF32StringVal`.
  * 
  * Must not be null.
  * 
@@ -86,7 +86,7 @@ void CSTL_u32string_destroy(CSTL_UTF32StringRef instance, CSTL_Alloc* alloc);
  * in `other` with the length given by `count`.
  * 
  * If `new_instance == NULL` or if `other_off` is outside of the range
- * `[other, other + CSTL_*string_size(other)]` returns `false` and does nothing,
+ * `[other, other + CSTL_u32string_size(other)]` returns `false` and does nothing,
  * otherwise it returns `true`.
  * 
  * If `new_instance == other` the substring operation is performed in-place without
@@ -101,7 +101,7 @@ bool CSTL_u32string_substr(CSTL_UTF32StringVal* new_instance, CSTL_UTF32StringCR
 /**
  * Replaces the contents of `instance` with the null-terminated string at `ptr`.
  * 
- * If the length of the string at `ptr` is greater than `CSTL_*string_max_size()` this function
+ * If the length of the string at `ptr` is greater than `CSTL_u32string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -110,7 +110,7 @@ bool CSTL_u32string_assign(CSTL_UTF32StringRef instance, const char32_t* ptr, CS
 /**
  * Replaces the contents of `instance` with the first `count` characters of the string at `ptr`.
  * 
- * If `n` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `n` is greater than `CSTL_u32string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -119,7 +119,7 @@ bool CSTL_u32string_assign_n(CSTL_UTF32StringRef instance, const char32_t* ptr, 
 /**
  * Replaces the contents of `instance` with the `count` copies of the character `ch`.
  * 
- * If `count` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `count` is greater than `CSTL_u32string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -129,7 +129,7 @@ bool CSTL_u32string_assign_char(CSTL_UTF32StringRef instance, size_t count, char
  * Replaces the contents of `instance` with the substring at offset `other_off` in `other`
  * with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]` returns
+ * If `other_off` is outside of the range `[other, other + CSTL_u32string_size(other)]` returns
  * `false` and does nothing, otherwise it returns `true`.
  * 
  */
@@ -145,7 +145,7 @@ bool CSTL_u32string_assign_substr(CSTL_UTF32StringRef instance, CSTL_UTF32String
  * If `propagate_alloc == false` `instance` keeps using `alloc` as its allocator,
  * potentially reusing its storage.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_UTF32StringVal` if applicable.
  * 
  */
 void CSTL_u32string_copy_assign(CSTL_UTF32StringRef instance, CSTL_Alloc* alloc, CSTL_UTF32StringCRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -159,7 +159,7 @@ void CSTL_u32string_copy_assign(CSTL_UTF32StringRef instance, CSTL_Alloc* alloc,
  * If `propagate_alloc == false && alloc != other_alloc` then storage is reused
  * and individual characters of `other` are moved in. Then, `instance` uses `alloc` as its allocator.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_UTF32StringVal` if applicable.
  * 
  */
 void CSTL_u32string_move_assign(CSTL_UTF32StringRef instance, CSTL_Alloc* alloc, CSTL_UTF32StringRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -175,7 +175,7 @@ void CSTL_u32string_swap(CSTL_UTF32StringRef instance, CSTL_UTF32StringRef other
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_u32string_length(instance)` the behavior is undefined.
  * 
  */
 char32_t* CSTL_u32string_index(CSTL_UTF32StringRef instance, size_t pos);
@@ -183,7 +183,7 @@ char32_t* CSTL_u32string_index(CSTL_UTF32StringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_u32string_length(instance)` the behavior is undefined.
  * 
  */
 const char32_t* CSTL_u32string_const_index(CSTL_UTF32StringCRef instance, size_t pos);
@@ -191,7 +191,7 @@ const char32_t* CSTL_u32string_const_index(CSTL_UTF32StringCRef instance, size_t
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_u32string_length(instance)` a null pointer is returned.
  * 
  */
 char32_t* CSTL_u32string_at(CSTL_UTF32StringRef instance, size_t pos);
@@ -199,7 +199,7 @@ char32_t* CSTL_u32string_at(CSTL_UTF32StringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_u32string_length(instance)` a null pointer is returned.
  * 
  */
 const char32_t* CSTL_u32string_const_at(CSTL_UTF32StringCRef instance, size_t pos);
@@ -207,7 +207,7 @@ const char32_t* CSTL_u32string_const_at(CSTL_UTF32StringCRef instance, size_t po
 /**
  * Returns a pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u32string_empty(instance) == true` the behavior is undefined.
  * 
  */
 char32_t* CSTL_u32string_front(CSTL_UTF32StringRef instance);
@@ -215,7 +215,7 @@ char32_t* CSTL_u32string_front(CSTL_UTF32StringRef instance);
 /**
  * Returns a const pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u32string_empty(instance) == true` the behavior is undefined.
  * 
  */
 const char32_t* CSTL_u32string_const_front(CSTL_UTF32StringCRef instance);
@@ -223,7 +223,7 @@ const char32_t* CSTL_u32string_const_front(CSTL_UTF32StringCRef instance);
 /**
  * Returns a pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u32string_empty(instance) == true` the behavior is undefined.
  * 
  */
 char32_t* CSTL_u32string_back(CSTL_UTF32StringRef instance);
@@ -231,7 +231,7 @@ char32_t* CSTL_u32string_back(CSTL_UTF32StringRef instance);
 /**
  * Returns a const pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u32string_empty(instance) == true` the behavior is undefined.
  * 
  */
 const char32_t* CSTL_u32string_const_back(CSTL_UTF32StringCRef instance);
@@ -240,10 +240,10 @@ const char32_t* CSTL_u32string_const_back(CSTL_UTF32StringCRef instance);
  * Returns a pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_u32string_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_data(instance), CSTL_*string_data(instance) + size]`
+ * The range `[CSTL_u32string_data(instance), CSTL_u32string_data(instance) + size]`
  * is always valid.
  * 
  * The array may be mutated through the returned pointer excluding
@@ -256,10 +256,10 @@ char32_t* CSTL_u32string_data(CSTL_UTF32StringRef instance);
  * Returns a const pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_u32string_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_c_str(instance), CSTL_*string_c_str(instance) + size]`
+ * The range `[CSTL_u32string_c_str(instance), CSTL_u32string_c_str(instance) + size]`
  * is always valid.
  * 
  */
@@ -268,8 +268,8 @@ const char32_t* CSTL_u32string_c_str(CSTL_UTF32StringCRef instance);
 /**
  * Returns an iterator (pointer) to the first character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_u32string_empty(instance) == true` then
+ * `CSTL_u32string_begin(instance) == CSTL_u32string_end(instance)`.
  * 
  */
 char32_t* CSTL_u32string_begin(CSTL_UTF32StringRef instance);
@@ -277,8 +277,8 @@ char32_t* CSTL_u32string_begin(CSTL_UTF32StringRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_u32string_empty(instance) == true` then
+ * `CSTL_u32string_begin(instance) == CSTL_u32string_end(instance)`.
  * 
  */
 const char32_t* CSTL_u32string_const_begin(CSTL_UTF32StringCRef instance);
@@ -286,8 +286,8 @@ const char32_t* CSTL_u32string_const_begin(CSTL_UTF32StringCRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_u32string_empty(instance) == true` then
+ * `CSTL_u32string_begin(instance) == CSTL_u32string_end(instance)`.
  * 
  */
 char32_t* CSTL_u32string_end(CSTL_UTF32StringRef instance);
@@ -295,8 +295,8 @@ char32_t* CSTL_u32string_end(CSTL_UTF32StringRef instance);
 /**
  * Returns a const iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_const_begin(instance) == CSTL_*string_const_end(instance)`.
+ * If `CSTL_u32string_empty(instance) == true` then
+ * `CSTL_u32string_const_begin(instance) == CSTL_u32string_const_end(instance)`.
  * 
  */
 const char32_t* CSTL_u32string_const_end(CSTL_UTF32StringCRef instance);
@@ -332,10 +332,10 @@ size_t CSTL_u32string_capacity(CSTL_UTF32StringCRef instance);
 size_t CSTL_u32string_max_size();
 
 /**
- * If `new_capacity > CSTL_*string_capacity(instance)`, reallocates and expands
+ * If `new_capacity > CSTL_u32string_capacity(instance)`, reallocates and expands
  * the underlying array storage.
  * 
- * If `new_capacity` exceeds `CSTL_*string_max_size()` this function has no effect
+ * If `new_capacity` exceeds `CSTL_u32string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -356,7 +356,7 @@ void CSTL_u32string_clear(CSTL_UTF32StringRef instance);
 /**
  * Inserts the null-terminated string at `ptr` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -368,7 +368,7 @@ char32_t* CSTL_u32string_insert(CSTL_UTF32StringRef instance, const char32_t* wh
 /**
  * Inserts the first `count` characters of the string at `ptr` at the pointer  `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -380,7 +380,7 @@ char32_t* CSTL_u32string_insert_n(CSTL_UTF32StringRef instance, const char32_t* 
 /**
  * Inserts `count` copies of the character `ch` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -392,7 +392,7 @@ char32_t* CSTL_u32string_insert_char(CSTL_UTF32StringRef instance, const char32_
 /**
  * Inserts the string `other` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -405,8 +405,8 @@ char32_t* CSTL_u32string_insert_str(CSTL_UTF32StringRef instance, const char32_t
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at the pointer `where` in `instance`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_u32string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -418,8 +418,8 @@ char32_t* CSTL_u32string_insert_substr(CSTL_UTF32StringRef instance, const char3
 /**
  * Inserts the null-terminated string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -428,8 +428,8 @@ bool CSTL_u32string_insert_at(CSTL_UTF32StringRef instance, size_t off, const ch
 /**
  * Inserts the first `count` characters of the string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -438,8 +438,8 @@ bool CSTL_u32string_insert_n_at(CSTL_UTF32StringRef instance, size_t off, const 
 /**
  * Inserts `count` copies of the character `ch` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -448,8 +448,8 @@ bool CSTL_u32string_insert_char_at(CSTL_UTF32StringRef instance, size_t off, siz
 /**
  * Inserts the string `other` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -459,9 +459,9 @@ bool CSTL_u32string_insert_str_at(CSTL_UTF32StringRef instance, size_t off, CSTL
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_u32string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -490,7 +490,7 @@ char32_t* CSTL_u32string_erase_substr(CSTL_UTF32StringRef instance, const char32
 /**
  * Removes the character at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -499,7 +499,7 @@ bool CSTL_u32string_erase_at(CSTL_UTF32StringRef instance, size_t off);
 /**
  * Removes the substring at offset `off` in `instance` with the length given by `count`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -508,7 +508,7 @@ bool CSTL_u32string_erase_substr_at(CSTL_UTF32StringRef instance, size_t off, si
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_u32string_size(instance) == CSTL_u32string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -517,7 +517,7 @@ bool CSTL_u32string_push_back(CSTL_UTF32StringRef instance, char32_t ch, CSTL_Al
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_u32string_size(instance) == CSTL_u32string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -526,7 +526,7 @@ void CSTL_u32string_pop_back(CSTL_UTF32StringRef instance);
 /**
  * Appends the null-terminated string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -535,7 +535,7 @@ bool CSTL_u32string_append(CSTL_UTF32StringRef instance, const char32_t* ptr, CS
 /**
  * Appends the first `count` characters of the string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -544,7 +544,7 @@ bool CSTL_u32string_append_n(CSTL_UTF32StringRef instance, const char32_t* ptr, 
 /**
  * Appends `count` copies of the character `ch` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -553,7 +553,7 @@ bool CSTL_u32string_append_char(CSTL_UTF32StringRef instance, size_t count, char
 /**
  * Appends the string `other` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -563,7 +563,7 @@ bool CSTL_u32string_append_str(CSTL_UTF32StringRef instance, CSTL_UTF32StringCRe
  * Appends the substring at offset `other_off` in `other` with the length
  * given by `count` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -573,7 +573,7 @@ bool CSTL_u32string_append_substr(CSTL_UTF32StringRef instance, CSTL_UTF32String
  * Replaces the characters in the range `[first, last)` with the null-terminated
  * string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -587,7 +587,7 @@ bool CSTL_u32string_replace(CSTL_UTF32StringRef instance, const char32_t* first,
  * Replaces the characters in the range `[first, last)` with the first `count`
  * characters of the string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -601,7 +601,7 @@ bool CSTL_u32string_replace_n(CSTL_UTF32StringRef instance, const char32_t* firs
  * Replaces the characters in the range `[first, last)` with `count` copies
  * of the character `ch`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -614,7 +614,7 @@ bool CSTL_u32string_replace_char(CSTL_UTF32StringRef instance, const char32_t* f
 /**
  * Replaces the characters in the range `[first, last)` with the string `other`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -628,8 +628,8 @@ bool CSTL_u32string_replace_str(CSTL_UTF32StringRef instance, const char32_t* fi
  * Replaces the characters in the range `[first, last)` with the substring
  * at offset `other_off` in `other` with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_u32string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -643,8 +643,8 @@ bool CSTL_u32string_replace_substr(CSTL_UTF32StringRef instance, const char32_t*
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the null-terminated string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -654,8 +654,8 @@ bool CSTL_u32string_replace_at(CSTL_UTF32StringRef instance, size_t off, size_t 
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the first `count2` characters of the string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -665,8 +665,8 @@ bool CSTL_u32string_replace_n_at(CSTL_UTF32StringRef instance, size_t off, size_
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with `count` copies of the character `ch`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -676,8 +676,8 @@ bool CSTL_u32string_replace_char_at(CSTL_UTF32StringRef instance, size_t off, si
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the string `other`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -688,9 +688,9 @@ bool CSTL_u32string_replace_str_at(CSTL_UTF32StringRef instance, size_t off, siz
  * with the substring at offset `other_off` in `other` with the length
  * given by `count2`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u32string_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_u32string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u32string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -701,7 +701,7 @@ bool CSTL_u32string_replace_substr_at(CSTL_UTF32StringRef instance, size_t off, 
  * `dest`. The resulting character string is not null terminated.
  * 
  * Returns the number of characters copied or `CSTL_string_npos` if
- * `off > CSTL_*string_size(instance)` (out of range).
+ * `off > CSTL_u32string_size(instance)` (out of range).
  * 
  */
 size_t CSTL_u32string_copy(CSTL_UTF32StringCRef instance, char32_t* dest, size_t count, size_t off);
@@ -710,7 +710,7 @@ size_t CSTL_u32string_copy(CSTL_UTF32StringCRef instance, char32_t* dest, size_t
  * Resizes the string to contain `new_size` characters, appending `ch`
  * if current size is less than `new_size`.
  * 
- * If `new_size` is greater than `CSTL_*string_max_size()` this
+ * If `new_size` is greater than `CSTL_u32string_max_size()` this
  * function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -795,7 +795,7 @@ size_t CSTL_u32string_rfind_str(CSTL_UTF32StringCRef instance, CSTL_UTF32StringC
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_UTF32String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -809,9 +809,9 @@ int CSTL_u32string_compare(const char32_t* left, const char32_t* right);
  * compare equal.
  * 
  * To compare an explicit length `left` and a null-terminated `right`,
- * swap them and negate the result: `-CSTL_*string_compare_n(right, left, left_count)`.
+ * swap them and negate the result: `-CSTL_u32string_compare_n(right, left, left_count)`.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_UTF32String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -824,7 +824,7 @@ int CSTL_u32string_compare_n(const char32_t* left, const char32_t* right, size_t
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_UTF32String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */

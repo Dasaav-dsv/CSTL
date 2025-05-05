@@ -52,7 +52,7 @@ typedef struct CSTL_UTF8StringVal {
 } CSTL_UTF8StringVal;
 
 /**
- * Reference to a mutable `CSTL_*StringVal`.
+ * Reference to a mutable `CSTL_UTF8StringVal`.
  * 
  * Must not be null.
  * 
@@ -60,7 +60,7 @@ typedef struct CSTL_UTF8StringVal {
 typedef CSTL_UTF8StringVal* CSTL_UTF8StringRef;
 
 /**
- * Reference to a const `CSTL_*StringVal`.
+ * Reference to a const `CSTL_UTF8StringVal`.
  * 
  * Must not be null.
  * 
@@ -90,7 +90,7 @@ void CSTL_u8string_destroy(CSTL_UTF8StringRef instance, CSTL_Alloc* alloc);
  * in `other` with the length given by `count`.
  * 
  * If `new_instance == NULL` or if `other_off` is outside of the range
- * `[other, other + CSTL_*string_size(other)]` returns `false` and does nothing,
+ * `[other, other + CSTL_u8string_size(other)]` returns `false` and does nothing,
  * otherwise it returns `true`.
  * 
  * If `new_instance == other` the substring operation is performed in-place without
@@ -105,7 +105,7 @@ bool CSTL_u8string_substr(CSTL_UTF8StringVal* new_instance, CSTL_UTF8StringCRef 
 /**
  * Replaces the contents of `instance` with the null-terminated string at `ptr`.
  * 
- * If the length of the string at `ptr` is greater than `CSTL_*string_max_size()` this function
+ * If the length of the string at `ptr` is greater than `CSTL_u8string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -114,7 +114,7 @@ bool CSTL_u8string_assign(CSTL_UTF8StringRef instance, const char8_t* ptr, CSTL_
 /**
  * Replaces the contents of `instance` with the first `count` characters of the string at `ptr`.
  * 
- * If `n` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `n` is greater than `CSTL_u8string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -123,7 +123,7 @@ bool CSTL_u8string_assign_n(CSTL_UTF8StringRef instance, const char8_t* ptr, siz
 /**
  * Replaces the contents of `instance` with the `count` copies of the character `ch`.
  * 
- * If `count` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `count` is greater than `CSTL_u8string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -133,7 +133,7 @@ bool CSTL_u8string_assign_char(CSTL_UTF8StringRef instance, size_t count, char8_
  * Replaces the contents of `instance` with the substring at offset `other_off` in `other`
  * with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]` returns
+ * If `other_off` is outside of the range `[other, other + CSTL_u8string_size(other)]` returns
  * `false` and does nothing, otherwise it returns `true`.
  * 
  */
@@ -149,7 +149,7 @@ bool CSTL_u8string_assign_substr(CSTL_UTF8StringRef instance, CSTL_UTF8StringCRe
  * If `propagate_alloc == false` `instance` keeps using `alloc` as its allocator,
  * potentially reusing its storage.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_UTF8StringVal` if applicable.
  * 
  */
 void CSTL_u8string_copy_assign(CSTL_UTF8StringRef instance, CSTL_Alloc* alloc, CSTL_UTF8StringCRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -163,7 +163,7 @@ void CSTL_u8string_copy_assign(CSTL_UTF8StringRef instance, CSTL_Alloc* alloc, C
  * If `propagate_alloc == false && alloc != other_alloc` then storage is reused
  * and individual characters of `other` are moved in. Then, `instance` uses `alloc` as its allocator.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_UTF8StringVal` if applicable.
  * 
  */
 void CSTL_u8string_move_assign(CSTL_UTF8StringRef instance, CSTL_Alloc* alloc, CSTL_UTF8StringRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -179,7 +179,7 @@ void CSTL_u8string_swap(CSTL_UTF8StringRef instance, CSTL_UTF8StringRef other_in
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_u8string_length(instance)` the behavior is undefined.
  * 
  */
 char8_t* CSTL_u8string_index(CSTL_UTF8StringRef instance, size_t pos);
@@ -187,7 +187,7 @@ char8_t* CSTL_u8string_index(CSTL_UTF8StringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_u8string_length(instance)` the behavior is undefined.
  * 
  */
 const char8_t* CSTL_u8string_const_index(CSTL_UTF8StringCRef instance, size_t pos);
@@ -195,7 +195,7 @@ const char8_t* CSTL_u8string_const_index(CSTL_UTF8StringCRef instance, size_t po
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_u8string_length(instance)` a null pointer is returned.
  * 
  */
 char8_t* CSTL_u8string_at(CSTL_UTF8StringRef instance, size_t pos);
@@ -203,7 +203,7 @@ char8_t* CSTL_u8string_at(CSTL_UTF8StringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_u8string_length(instance)` a null pointer is returned.
  * 
  */
 const char8_t* CSTL_u8string_const_at(CSTL_UTF8StringCRef instance, size_t pos);
@@ -211,7 +211,7 @@ const char8_t* CSTL_u8string_const_at(CSTL_UTF8StringCRef instance, size_t pos);
 /**
  * Returns a pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u8string_empty(instance) == true` the behavior is undefined.
  * 
  */
 char8_t* CSTL_u8string_front(CSTL_UTF8StringRef instance);
@@ -219,7 +219,7 @@ char8_t* CSTL_u8string_front(CSTL_UTF8StringRef instance);
 /**
  * Returns a const pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u8string_empty(instance) == true` the behavior is undefined.
  * 
  */
 const char8_t* CSTL_u8string_const_front(CSTL_UTF8StringCRef instance);
@@ -227,7 +227,7 @@ const char8_t* CSTL_u8string_const_front(CSTL_UTF8StringCRef instance);
 /**
  * Returns a pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u8string_empty(instance) == true` the behavior is undefined.
  * 
  */
 char8_t* CSTL_u8string_back(CSTL_UTF8StringRef instance);
@@ -235,7 +235,7 @@ char8_t* CSTL_u8string_back(CSTL_UTF8StringRef instance);
 /**
  * Returns a const pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_u8string_empty(instance) == true` the behavior is undefined.
  * 
  */
 const char8_t* CSTL_u8string_const_back(CSTL_UTF8StringCRef instance);
@@ -244,10 +244,10 @@ const char8_t* CSTL_u8string_const_back(CSTL_UTF8StringCRef instance);
  * Returns a pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_u8string_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_data(instance), CSTL_*string_data(instance) + size]`
+ * The range `[CSTL_u8string_data(instance), CSTL_u8string_data(instance) + size]`
  * is always valid.
  * 
  * The array may be mutated through the returned pointer excluding
@@ -260,10 +260,10 @@ char8_t* CSTL_u8string_data(CSTL_UTF8StringRef instance);
  * Returns a const pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_u8string_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_c_str(instance), CSTL_*string_c_str(instance) + size]`
+ * The range `[CSTL_u8string_c_str(instance), CSTL_u8string_c_str(instance) + size]`
  * is always valid.
  * 
  */
@@ -272,8 +272,8 @@ const char8_t* CSTL_u8string_c_str(CSTL_UTF8StringCRef instance);
 /**
  * Returns an iterator (pointer) to the first character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_u8string_empty(instance) == true` then
+ * `CSTL_u8string_begin(instance) == CSTL_u8string_end(instance)`.
  * 
  */
 char8_t* CSTL_u8string_begin(CSTL_UTF8StringRef instance);
@@ -281,8 +281,8 @@ char8_t* CSTL_u8string_begin(CSTL_UTF8StringRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_u8string_empty(instance) == true` then
+ * `CSTL_u8string_begin(instance) == CSTL_u8string_end(instance)`.
  * 
  */
 const char8_t* CSTL_u8string_const_begin(CSTL_UTF8StringCRef instance);
@@ -290,8 +290,8 @@ const char8_t* CSTL_u8string_const_begin(CSTL_UTF8StringCRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_u8string_empty(instance) == true` then
+ * `CSTL_u8string_begin(instance) == CSTL_u8string_end(instance)`.
  * 
  */
 char8_t* CSTL_u8string_end(CSTL_UTF8StringRef instance);
@@ -299,8 +299,8 @@ char8_t* CSTL_u8string_end(CSTL_UTF8StringRef instance);
 /**
  * Returns a const iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_const_begin(instance) == CSTL_*string_const_end(instance)`.
+ * If `CSTL_u8string_empty(instance) == true` then
+ * `CSTL_u8string_const_begin(instance) == CSTL_u8string_const_end(instance)`.
  * 
  */
 const char8_t* CSTL_u8string_const_end(CSTL_UTF8StringCRef instance);
@@ -336,10 +336,10 @@ size_t CSTL_u8string_capacity(CSTL_UTF8StringCRef instance);
 size_t CSTL_u8string_max_size();
 
 /**
- * If `new_capacity > CSTL_*string_capacity(instance)`, reallocates and expands
+ * If `new_capacity > CSTL_u8string_capacity(instance)`, reallocates and expands
  * the underlying array storage.
  * 
- * If `new_capacity` exceeds `CSTL_*string_max_size()` this function has no effect
+ * If `new_capacity` exceeds `CSTL_u8string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -360,7 +360,7 @@ void CSTL_u8string_clear(CSTL_UTF8StringRef instance);
 /**
  * Inserts the null-terminated string at `ptr` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -372,7 +372,7 @@ char8_t* CSTL_u8string_insert(CSTL_UTF8StringRef instance, const char8_t* where,
 /**
  * Inserts the first `count` characters of the string at `ptr` at the pointer  `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -384,7 +384,7 @@ char8_t* CSTL_u8string_insert_n(CSTL_UTF8StringRef instance, const char8_t* wher
 /**
  * Inserts `count` copies of the character `ch` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -396,7 +396,7 @@ char8_t* CSTL_u8string_insert_char(CSTL_UTF8StringRef instance, const char8_t* w
 /**
  * Inserts the string `other` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -409,8 +409,8 @@ char8_t* CSTL_u8string_insert_str(CSTL_UTF8StringRef instance, const char8_t* wh
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at the pointer `where` in `instance`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_u8string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -422,8 +422,8 @@ char8_t* CSTL_u8string_insert_substr(CSTL_UTF8StringRef instance, const char8_t*
 /**
  * Inserts the null-terminated string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -432,8 +432,8 @@ bool CSTL_u8string_insert_at(CSTL_UTF8StringRef instance, size_t off, const char
 /**
  * Inserts the first `count` characters of the string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -442,8 +442,8 @@ bool CSTL_u8string_insert_n_at(CSTL_UTF8StringRef instance, size_t off, const ch
 /**
  * Inserts `count` copies of the character `ch` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -452,8 +452,8 @@ bool CSTL_u8string_insert_char_at(CSTL_UTF8StringRef instance, size_t off, size_
 /**
  * Inserts the string `other` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -463,9 +463,9 @@ bool CSTL_u8string_insert_str_at(CSTL_UTF8StringRef instance, size_t off, CSTL_U
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_u8string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -494,7 +494,7 @@ char8_t* CSTL_u8string_erase_substr(CSTL_UTF8StringRef instance, const char8_t* 
 /**
  * Removes the character at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -503,7 +503,7 @@ bool CSTL_u8string_erase_at(CSTL_UTF8StringRef instance, size_t off);
 /**
  * Removes the substring at offset `off` in `instance` with the length given by `count`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -512,7 +512,7 @@ bool CSTL_u8string_erase_substr_at(CSTL_UTF8StringRef instance, size_t off, size
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_u8string_size(instance) == CSTL_u8string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -521,7 +521,7 @@ bool CSTL_u8string_push_back(CSTL_UTF8StringRef instance, char8_t ch, CSTL_Alloc
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_u8string_size(instance) == CSTL_u8string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -530,7 +530,7 @@ void CSTL_u8string_pop_back(CSTL_UTF8StringRef instance);
 /**
  * Appends the null-terminated string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -539,7 +539,7 @@ bool CSTL_u8string_append(CSTL_UTF8StringRef instance, const char8_t* ptr, CSTL_
 /**
  * Appends the first `count` characters of the string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -548,7 +548,7 @@ bool CSTL_u8string_append_n(CSTL_UTF8StringRef instance, const char8_t* ptr, siz
 /**
  * Appends `count` copies of the character `ch` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -557,7 +557,7 @@ bool CSTL_u8string_append_char(CSTL_UTF8StringRef instance, size_t count, char8_
 /**
  * Appends the string `other` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -567,7 +567,7 @@ bool CSTL_u8string_append_str(CSTL_UTF8StringRef instance, CSTL_UTF8StringCRef o
  * Appends the substring at offset `other_off` in `other` with the length
  * given by `count` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -577,7 +577,7 @@ bool CSTL_u8string_append_substr(CSTL_UTF8StringRef instance, CSTL_UTF8StringCRe
  * Replaces the characters in the range `[first, last)` with the null-terminated
  * string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -591,7 +591,7 @@ bool CSTL_u8string_replace(CSTL_UTF8StringRef instance, const char8_t* first, co
  * Replaces the characters in the range `[first, last)` with the first `count`
  * characters of the string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -605,7 +605,7 @@ bool CSTL_u8string_replace_n(CSTL_UTF8StringRef instance, const char8_t* first, 
  * Replaces the characters in the range `[first, last)` with `count` copies
  * of the character `ch`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -618,7 +618,7 @@ bool CSTL_u8string_replace_char(CSTL_UTF8StringRef instance, const char8_t* firs
 /**
  * Replaces the characters in the range `[first, last)` with the string `other`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -632,8 +632,8 @@ bool CSTL_u8string_replace_str(CSTL_UTF8StringRef instance, const char8_t* first
  * Replaces the characters in the range `[first, last)` with the substring
  * at offset `other_off` in `other` with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_u8string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -647,8 +647,8 @@ bool CSTL_u8string_replace_substr(CSTL_UTF8StringRef instance, const char8_t* fi
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the null-terminated string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -658,8 +658,8 @@ bool CSTL_u8string_replace_at(CSTL_UTF8StringRef instance, size_t off, size_t co
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the first `count2` characters of the string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -669,8 +669,8 @@ bool CSTL_u8string_replace_n_at(CSTL_UTF8StringRef instance, size_t off, size_t 
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with `count` copies of the character `ch`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -680,8 +680,8 @@ bool CSTL_u8string_replace_char_at(CSTL_UTF8StringRef instance, size_t off, size
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the string `other`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -692,9 +692,9 @@ bool CSTL_u8string_replace_str_at(CSTL_UTF8StringRef instance, size_t off, size_
  * with the substring at offset `other_off` in `other` with the length
  * given by `count2`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_u8string_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_u8string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_u8string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -705,7 +705,7 @@ bool CSTL_u8string_replace_substr_at(CSTL_UTF8StringRef instance, size_t off, si
  * `dest`. The resulting character string is not null terminated.
  * 
  * Returns the number of characters copied or `CSTL_string_npos` if
- * `off > CSTL_*string_size(instance)` (out of range).
+ * `off > CSTL_u8string_size(instance)` (out of range).
  * 
  */
 size_t CSTL_u8string_copy(CSTL_UTF8StringCRef instance, char8_t* dest, size_t count, size_t off);
@@ -714,7 +714,7 @@ size_t CSTL_u8string_copy(CSTL_UTF8StringCRef instance, char8_t* dest, size_t co
  * Resizes the string to contain `new_size` characters, appending `ch`
  * if current size is less than `new_size`.
  * 
- * If `new_size` is greater than `CSTL_*string_max_size()` this
+ * If `new_size` is greater than `CSTL_u8string_max_size()` this
  * function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -799,7 +799,7 @@ size_t CSTL_u8string_rfind_str(CSTL_UTF8StringCRef instance, CSTL_UTF8StringCRef
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_UTF8String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -813,9 +813,9 @@ int CSTL_u8string_compare(const char8_t* left, const char8_t* right);
  * compare equal.
  * 
  * To compare an explicit length `left` and a null-terminated `right`,
- * swap them and negate the result: `-CSTL_*string_compare_n(right, left, left_count)`.
+ * swap them and negate the result: `-CSTL_u8string_compare_n(right, left, left_count)`.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_UTF8String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -828,7 +828,7 @@ int CSTL_u8string_compare_n(const char8_t* left, const char8_t* right, size_t ri
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_UTF8String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */

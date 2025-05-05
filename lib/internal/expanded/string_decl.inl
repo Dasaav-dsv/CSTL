@@ -46,7 +46,7 @@ typedef struct CSTL_StringVal {
 } CSTL_StringVal;
 
 /**
- * Reference to a mutable `CSTL_*StringVal`.
+ * Reference to a mutable `CSTL_StringVal`.
  * 
  * Must not be null.
  * 
@@ -54,7 +54,7 @@ typedef struct CSTL_StringVal {
 typedef CSTL_StringVal* CSTL_StringRef;
 
 /**
- * Reference to a const `CSTL_*StringVal`.
+ * Reference to a const `CSTL_StringVal`.
  * 
  * Must not be null.
  * 
@@ -84,7 +84,7 @@ void CSTL_string_destroy(CSTL_StringRef instance, CSTL_Alloc* alloc);
  * in `other` with the length given by `count`.
  * 
  * If `new_instance == NULL` or if `other_off` is outside of the range
- * `[other, other + CSTL_*string_size(other)]` returns `false` and does nothing,
+ * `[other, other + CSTL_string_size(other)]` returns `false` and does nothing,
  * otherwise it returns `true`.
  * 
  * If `new_instance == other` the substring operation is performed in-place without
@@ -99,7 +99,7 @@ bool CSTL_string_substr(CSTL_StringVal* new_instance, CSTL_StringCRef other, siz
 /**
  * Replaces the contents of `instance` with the null-terminated string at `ptr`.
  * 
- * If the length of the string at `ptr` is greater than `CSTL_*string_max_size()` this function
+ * If the length of the string at `ptr` is greater than `CSTL_string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -108,7 +108,7 @@ bool CSTL_string_assign(CSTL_StringRef instance, const char* ptr, CSTL_Alloc* al
 /**
  * Replaces the contents of `instance` with the first `count` characters of the string at `ptr`.
  * 
- * If `n` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `n` is greater than `CSTL_string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -117,7 +117,7 @@ bool CSTL_string_assign_n(CSTL_StringRef instance, const char* ptr, size_t count
 /**
  * Replaces the contents of `instance` with the `count` copies of the character `ch`.
  * 
- * If `count` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `count` is greater than `CSTL_string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -127,7 +127,7 @@ bool CSTL_string_assign_char(CSTL_StringRef instance, size_t count, char ch, CST
  * Replaces the contents of `instance` with the substring at offset `other_off` in `other`
  * with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]` returns
+ * If `other_off` is outside of the range `[other, other + CSTL_string_size(other)]` returns
  * `false` and does nothing, otherwise it returns `true`.
  * 
  */
@@ -143,7 +143,7 @@ bool CSTL_string_assign_substr(CSTL_StringRef instance, CSTL_StringCRef other, s
  * If `propagate_alloc == false` `instance` keeps using `alloc` as its allocator,
  * potentially reusing its storage.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_StringVal` if applicable.
  * 
  */
 void CSTL_string_copy_assign(CSTL_StringRef instance, CSTL_Alloc* alloc, CSTL_StringCRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -157,7 +157,7 @@ void CSTL_string_copy_assign(CSTL_StringRef instance, CSTL_Alloc* alloc, CSTL_St
  * If `propagate_alloc == false && alloc != other_alloc` then storage is reused
  * and individual characters of `other` are moved in. Then, `instance` uses `alloc` as its allocator.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_StringVal` if applicable.
  * 
  */
 void CSTL_string_move_assign(CSTL_StringRef instance, CSTL_Alloc* alloc, CSTL_StringRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -173,7 +173,7 @@ void CSTL_string_swap(CSTL_StringRef instance, CSTL_StringRef other_instance);
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_string_length(instance)` the behavior is undefined.
  * 
  */
 char* CSTL_string_index(CSTL_StringRef instance, size_t pos);
@@ -181,7 +181,7 @@ char* CSTL_string_index(CSTL_StringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_string_length(instance)` the behavior is undefined.
  * 
  */
 const char* CSTL_string_const_index(CSTL_StringCRef instance, size_t pos);
@@ -189,7 +189,7 @@ const char* CSTL_string_const_index(CSTL_StringCRef instance, size_t pos);
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_string_length(instance)` a null pointer is returned.
  * 
  */
 char* CSTL_string_at(CSTL_StringRef instance, size_t pos);
@@ -197,7 +197,7 @@ char* CSTL_string_at(CSTL_StringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_string_length(instance)` a null pointer is returned.
  * 
  */
 const char* CSTL_string_const_at(CSTL_StringCRef instance, size_t pos);
@@ -205,7 +205,7 @@ const char* CSTL_string_const_at(CSTL_StringCRef instance, size_t pos);
 /**
  * Returns a pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_string_empty(instance) == true` the behavior is undefined.
  * 
  */
 char* CSTL_string_front(CSTL_StringRef instance);
@@ -213,7 +213,7 @@ char* CSTL_string_front(CSTL_StringRef instance);
 /**
  * Returns a const pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_string_empty(instance) == true` the behavior is undefined.
  * 
  */
 const char* CSTL_string_const_front(CSTL_StringCRef instance);
@@ -221,7 +221,7 @@ const char* CSTL_string_const_front(CSTL_StringCRef instance);
 /**
  * Returns a pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_string_empty(instance) == true` the behavior is undefined.
  * 
  */
 char* CSTL_string_back(CSTL_StringRef instance);
@@ -229,7 +229,7 @@ char* CSTL_string_back(CSTL_StringRef instance);
 /**
  * Returns a const pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_string_empty(instance) == true` the behavior is undefined.
  * 
  */
 const char* CSTL_string_const_back(CSTL_StringCRef instance);
@@ -238,10 +238,10 @@ const char* CSTL_string_const_back(CSTL_StringCRef instance);
  * Returns a pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_string_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_data(instance), CSTL_*string_data(instance) + size]`
+ * The range `[CSTL_string_data(instance), CSTL_string_data(instance) + size]`
  * is always valid.
  * 
  * The array may be mutated through the returned pointer excluding
@@ -254,10 +254,10 @@ char* CSTL_string_data(CSTL_StringRef instance);
  * Returns a const pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_string_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_c_str(instance), CSTL_*string_c_str(instance) + size]`
+ * The range `[CSTL_string_c_str(instance), CSTL_string_c_str(instance) + size]`
  * is always valid.
  * 
  */
@@ -266,8 +266,8 @@ const char* CSTL_string_c_str(CSTL_StringCRef instance);
 /**
  * Returns an iterator (pointer) to the first character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_string_empty(instance) == true` then
+ * `CSTL_string_begin(instance) == CSTL_string_end(instance)`.
  * 
  */
 char* CSTL_string_begin(CSTL_StringRef instance);
@@ -275,8 +275,8 @@ char* CSTL_string_begin(CSTL_StringRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_string_empty(instance) == true` then
+ * `CSTL_string_begin(instance) == CSTL_string_end(instance)`.
  * 
  */
 const char* CSTL_string_const_begin(CSTL_StringCRef instance);
@@ -284,8 +284,8 @@ const char* CSTL_string_const_begin(CSTL_StringCRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_string_empty(instance) == true` then
+ * `CSTL_string_begin(instance) == CSTL_string_end(instance)`.
  * 
  */
 char* CSTL_string_end(CSTL_StringRef instance);
@@ -293,8 +293,8 @@ char* CSTL_string_end(CSTL_StringRef instance);
 /**
  * Returns a const iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_const_begin(instance) == CSTL_*string_const_end(instance)`.
+ * If `CSTL_string_empty(instance) == true` then
+ * `CSTL_string_const_begin(instance) == CSTL_string_const_end(instance)`.
  * 
  */
 const char* CSTL_string_const_end(CSTL_StringCRef instance);
@@ -330,10 +330,10 @@ size_t CSTL_string_capacity(CSTL_StringCRef instance);
 size_t CSTL_string_max_size();
 
 /**
- * If `new_capacity > CSTL_*string_capacity(instance)`, reallocates and expands
+ * If `new_capacity > CSTL_string_capacity(instance)`, reallocates and expands
  * the underlying array storage.
  * 
- * If `new_capacity` exceeds `CSTL_*string_max_size()` this function has no effect
+ * If `new_capacity` exceeds `CSTL_string_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -354,7 +354,7 @@ void CSTL_string_clear(CSTL_StringRef instance);
 /**
  * Inserts the null-terminated string at `ptr` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -366,7 +366,7 @@ char* CSTL_string_insert(CSTL_StringRef instance, const char* where, const char*
 /**
  * Inserts the first `count` characters of the string at `ptr` at the pointer  `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -378,7 +378,7 @@ char* CSTL_string_insert_n(CSTL_StringRef instance, const char* where, const cha
 /**
  * Inserts `count` copies of the character `ch` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -390,7 +390,7 @@ char* CSTL_string_insert_char(CSTL_StringRef instance, const char* where, size_t
 /**
  * Inserts the string `other` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -403,8 +403,8 @@ char* CSTL_string_insert_str(CSTL_StringRef instance, const char* where, CSTL_St
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at the pointer `where` in `instance`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -416,8 +416,8 @@ char* CSTL_string_insert_substr(CSTL_StringRef instance, const char* where, CSTL
 /**
  * Inserts the null-terminated string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -426,8 +426,8 @@ bool CSTL_string_insert_at(CSTL_StringRef instance, size_t off, const char* ptr,
 /**
  * Inserts the first `count` characters of the string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -436,8 +436,8 @@ bool CSTL_string_insert_n_at(CSTL_StringRef instance, size_t off, const char* pt
 /**
  * Inserts `count` copies of the character `ch` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -446,8 +446,8 @@ bool CSTL_string_insert_char_at(CSTL_StringRef instance, size_t off, size_t coun
 /**
  * Inserts the string `other` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -457,9 +457,9 @@ bool CSTL_string_insert_str_at(CSTL_StringRef instance, size_t off, CSTL_StringC
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -488,7 +488,7 @@ char* CSTL_string_erase_substr(CSTL_StringRef instance, const char* first, const
 /**
  * Removes the character at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -497,7 +497,7 @@ bool CSTL_string_erase_at(CSTL_StringRef instance, size_t off);
 /**
  * Removes the substring at offset `off` in `instance` with the length given by `count`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -506,7 +506,7 @@ bool CSTL_string_erase_substr_at(CSTL_StringRef instance, size_t off, size_t cou
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_string_size(instance) == CSTL_string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -515,7 +515,7 @@ bool CSTL_string_push_back(CSTL_StringRef instance, char ch, CSTL_Alloc* alloc);
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_string_size(instance) == CSTL_string_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -524,7 +524,7 @@ void CSTL_string_pop_back(CSTL_StringRef instance);
 /**
  * Appends the null-terminated string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -533,7 +533,7 @@ bool CSTL_string_append(CSTL_StringRef instance, const char* ptr, CSTL_Alloc* al
 /**
  * Appends the first `count` characters of the string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -542,7 +542,7 @@ bool CSTL_string_append_n(CSTL_StringRef instance, const char* ptr, size_t count
 /**
  * Appends `count` copies of the character `ch` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -551,7 +551,7 @@ bool CSTL_string_append_char(CSTL_StringRef instance, size_t count, char ch, CST
 /**
  * Appends the string `other` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -561,7 +561,7 @@ bool CSTL_string_append_str(CSTL_StringRef instance, CSTL_StringCRef other, CSTL
  * Appends the substring at offset `other_off` in `other` with the length
  * given by `count` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -571,7 +571,7 @@ bool CSTL_string_append_substr(CSTL_StringRef instance, CSTL_StringCRef other, s
  * Replaces the characters in the range `[first, last)` with the null-terminated
  * string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -585,7 +585,7 @@ bool CSTL_string_replace(CSTL_StringRef instance, const char* first, const char*
  * Replaces the characters in the range `[first, last)` with the first `count`
  * characters of the string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -599,7 +599,7 @@ bool CSTL_string_replace_n(CSTL_StringRef instance, const char* first, const cha
  * Replaces the characters in the range `[first, last)` with `count` copies
  * of the character `ch`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -612,7 +612,7 @@ bool CSTL_string_replace_char(CSTL_StringRef instance, const char* first, const 
 /**
  * Replaces the characters in the range `[first, last)` with the string `other`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -626,8 +626,8 @@ bool CSTL_string_replace_str(CSTL_StringRef instance, const char* first, const c
  * Replaces the characters in the range `[first, last)` with the substring
  * at offset `other_off` in `other` with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -641,8 +641,8 @@ bool CSTL_string_replace_substr(CSTL_StringRef instance, const char* first, cons
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the null-terminated string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -652,8 +652,8 @@ bool CSTL_string_replace_at(CSTL_StringRef instance, size_t off, size_t count, c
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the first `count2` characters of the string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -663,8 +663,8 @@ bool CSTL_string_replace_n_at(CSTL_StringRef instance, size_t off, size_t count,
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with `count` copies of the character `ch`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -674,8 +674,8 @@ bool CSTL_string_replace_char_at(CSTL_StringRef instance, size_t off, size_t cou
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the string `other`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -686,9 +686,9 @@ bool CSTL_string_replace_str_at(CSTL_StringRef instance, size_t off, size_t coun
  * with the substring at offset `other_off` in `other` with the length
  * given by `count2`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_string_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_string_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_string_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -699,7 +699,7 @@ bool CSTL_string_replace_substr_at(CSTL_StringRef instance, size_t off, size_t c
  * `dest`. The resulting character string is not null terminated.
  * 
  * Returns the number of characters copied or `CSTL_string_npos` if
- * `off > CSTL_*string_size(instance)` (out of range).
+ * `off > CSTL_string_size(instance)` (out of range).
  * 
  */
 size_t CSTL_string_copy(CSTL_StringCRef instance, char* dest, size_t count, size_t off);
@@ -708,7 +708,7 @@ size_t CSTL_string_copy(CSTL_StringCRef instance, char* dest, size_t count, size
  * Resizes the string to contain `new_size` characters, appending `ch`
  * if current size is less than `new_size`.
  * 
- * If `new_size` is greater than `CSTL_*string_max_size()` this
+ * If `new_size` is greater than `CSTL_string_max_size()` this
  * function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -793,7 +793,7 @@ size_t CSTL_string_rfind_str(CSTL_StringCRef instance, CSTL_StringCRef other, si
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -807,9 +807,9 @@ int CSTL_string_compare(const char* left, const char* right);
  * compare equal.
  * 
  * To compare an explicit length `left` and a null-terminated `right`,
- * swap them and negate the result: `-CSTL_*string_compare_n(right, left, left_count)`.
+ * swap them and negate the result: `-CSTL_string_compare_n(right, left, left_count)`.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -822,7 +822,7 @@ int CSTL_string_compare_n(const char* left, const char* right, size_t right_coun
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_String` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */

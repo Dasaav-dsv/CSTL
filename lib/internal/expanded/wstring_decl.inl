@@ -47,7 +47,7 @@ typedef struct CSTL_WideStringVal {
 } CSTL_WideStringVal;
 
 /**
- * Reference to a mutable `CSTL_*StringVal`.
+ * Reference to a mutable `CSTL_WideStringVal`.
  * 
  * Must not be null.
  * 
@@ -55,7 +55,7 @@ typedef struct CSTL_WideStringVal {
 typedef CSTL_WideStringVal* CSTL_WideStringRef;
 
 /**
- * Reference to a const `CSTL_*StringVal`.
+ * Reference to a const `CSTL_WideStringVal`.
  * 
  * Must not be null.
  * 
@@ -85,7 +85,7 @@ void CSTL_wstring_destroy(CSTL_WideStringRef instance, CSTL_Alloc* alloc);
  * in `other` with the length given by `count`.
  * 
  * If `new_instance == NULL` or if `other_off` is outside of the range
- * `[other, other + CSTL_*string_size(other)]` returns `false` and does nothing,
+ * `[other, other + CSTL_wstring_size(other)]` returns `false` and does nothing,
  * otherwise it returns `true`.
  * 
  * If `new_instance == other` the substring operation is performed in-place without
@@ -100,7 +100,7 @@ bool CSTL_wstring_substr(CSTL_WideStringVal* new_instance, CSTL_WideStringCRef o
 /**
  * Replaces the contents of `instance` with the null-terminated string at `ptr`.
  * 
- * If the length of the string at `ptr` is greater than `CSTL_*string_max_size()` this function
+ * If the length of the string at `ptr` is greater than `CSTL_wstring_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -109,7 +109,7 @@ bool CSTL_wstring_assign(CSTL_WideStringRef instance, const wchar_t* ptr, CSTL_A
 /**
  * Replaces the contents of `instance` with the first `count` characters of the string at `ptr`.
  * 
- * If `n` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `n` is greater than `CSTL_wstring_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -118,7 +118,7 @@ bool CSTL_wstring_assign_n(CSTL_WideStringRef instance, const wchar_t* ptr, size
 /**
  * Replaces the contents of `instance` with the `count` copies of the character `ch`.
  * 
- * If `count` is greater than `CSTL_*string_max_size()` this function has no effect
+ * If `count` is greater than `CSTL_wstring_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -128,7 +128,7 @@ bool CSTL_wstring_assign_char(CSTL_WideStringRef instance, size_t count, wchar_t
  * Replaces the contents of `instance` with the substring at offset `other_off` in `other`
  * with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]` returns
+ * If `other_off` is outside of the range `[other, other + CSTL_wstring_size(other)]` returns
  * `false` and does nothing, otherwise it returns `true`.
  * 
  */
@@ -144,7 +144,7 @@ bool CSTL_wstring_assign_substr(CSTL_WideStringRef instance, CSTL_WideStringCRef
  * If `propagate_alloc == false` `instance` keeps using `alloc` as its allocator,
  * potentially reusing its storage.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_WideStringVal` if applicable.
  * 
  */
 void CSTL_wstring_copy_assign(CSTL_WideStringRef instance, CSTL_Alloc* alloc, CSTL_WideStringCRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -158,7 +158,7 @@ void CSTL_wstring_copy_assign(CSTL_WideStringRef instance, CSTL_Alloc* alloc, CS
  * If `propagate_alloc == false && alloc != other_alloc` then storage is reused
  * and individual characters of `other` are moved in. Then, `instance` uses `alloc` as its allocator.
  * 
- * You are responsible for replacing the allocator outside of `CSTL_*StringVal` if applicable.
+ * You are responsible for replacing the allocator outside of `CSTL_WideStringVal` if applicable.
  * 
  */
 void CSTL_wstring_move_assign(CSTL_WideStringRef instance, CSTL_Alloc* alloc, CSTL_WideStringRef other_instance, CSTL_Alloc* other_alloc, bool propagate_alloc);
@@ -174,7 +174,7 @@ void CSTL_wstring_swap(CSTL_WideStringRef instance, CSTL_WideStringRef other_ins
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_wstring_length(instance)` the behavior is undefined.
  * 
  */
 wchar_t* CSTL_wstring_index(CSTL_WideStringRef instance, size_t pos);
@@ -182,7 +182,7 @@ wchar_t* CSTL_wstring_index(CSTL_WideStringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` the behavior is undefined.
+ * If `pos >= CSTL_wstring_length(instance)` the behavior is undefined.
  * 
  */
 const wchar_t* CSTL_wstring_const_index(CSTL_WideStringCRef instance, size_t pos);
@@ -190,7 +190,7 @@ const wchar_t* CSTL_wstring_const_index(CSTL_WideStringCRef instance, size_t pos
 /**
  * Returns a pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_wstring_length(instance)` a null pointer is returned.
  * 
  */
 wchar_t* CSTL_wstring_at(CSTL_WideStringRef instance, size_t pos);
@@ -198,7 +198,7 @@ wchar_t* CSTL_wstring_at(CSTL_WideStringRef instance, size_t pos);
 /**
  * Returns a const pointer to the character at `pos`.
  * 
- * If `pos >= CSTL_*string_length(instance)` a null pointer is returned.
+ * If `pos >= CSTL_wstring_length(instance)` a null pointer is returned.
  * 
  */
 const wchar_t* CSTL_wstring_const_at(CSTL_WideStringCRef instance, size_t pos);
@@ -206,7 +206,7 @@ const wchar_t* CSTL_wstring_const_at(CSTL_WideStringCRef instance, size_t pos);
 /**
  * Returns a pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_wstring_empty(instance) == true` the behavior is undefined.
  * 
  */
 wchar_t* CSTL_wstring_front(CSTL_WideStringRef instance);
@@ -214,7 +214,7 @@ wchar_t* CSTL_wstring_front(CSTL_WideStringRef instance);
 /**
  * Returns a const pointer to the first character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_wstring_empty(instance) == true` the behavior is undefined.
  * 
  */
 const wchar_t* CSTL_wstring_const_front(CSTL_WideStringCRef instance);
@@ -222,7 +222,7 @@ const wchar_t* CSTL_wstring_const_front(CSTL_WideStringCRef instance);
 /**
  * Returns a pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_wstring_empty(instance) == true` the behavior is undefined.
  * 
  */
 wchar_t* CSTL_wstring_back(CSTL_WideStringRef instance);
@@ -230,7 +230,7 @@ wchar_t* CSTL_wstring_back(CSTL_WideStringRef instance);
 /**
  * Returns a const pointer to the last character.
  * 
- * If `CSTL_*string_empty(instance) == true` the behavior is undefined.
+ * If `CSTL_wstring_empty(instance) == true` the behavior is undefined.
  * 
  */
 const wchar_t* CSTL_wstring_const_back(CSTL_WideStringCRef instance);
@@ -239,10 +239,10 @@ const wchar_t* CSTL_wstring_const_back(CSTL_WideStringCRef instance);
  * Returns a pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_wstring_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_data(instance), CSTL_*string_data(instance) + size]`
+ * The range `[CSTL_wstring_data(instance), CSTL_wstring_data(instance) + size]`
  * is always valid.
  * 
  * The array may be mutated through the returned pointer excluding
@@ -255,10 +255,10 @@ wchar_t* CSTL_wstring_data(CSTL_WideStringRef instance);
  * Returns a const pointer to the underlying null-terminated array
  * serving as character storage.
  * 
- * If `CSTL_*string_empty(instance) == true` the pointer is still
+ * If `CSTL_wstring_empty(instance) == true` the pointer is still
  * valid and points to a single null character.
  * 
- * The range `[CSTL_*string_c_str(instance), CSTL_*string_c_str(instance) + size]`
+ * The range `[CSTL_wstring_c_str(instance), CSTL_wstring_c_str(instance) + size]`
  * is always valid.
  * 
  */
@@ -267,8 +267,8 @@ const wchar_t* CSTL_wstring_c_str(CSTL_WideStringCRef instance);
 /**
  * Returns an iterator (pointer) to the first character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_wstring_empty(instance) == true` then
+ * `CSTL_wstring_begin(instance) == CSTL_wstring_end(instance)`.
  * 
  */
 wchar_t* CSTL_wstring_begin(CSTL_WideStringRef instance);
@@ -276,8 +276,8 @@ wchar_t* CSTL_wstring_begin(CSTL_WideStringRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_wstring_empty(instance) == true` then
+ * `CSTL_wstring_begin(instance) == CSTL_wstring_end(instance)`.
  * 
  */
 const wchar_t* CSTL_wstring_const_begin(CSTL_WideStringCRef instance);
@@ -285,8 +285,8 @@ const wchar_t* CSTL_wstring_const_begin(CSTL_WideStringCRef instance);
 /**
  * Returns an iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_begin(instance) == CSTL_*string_end(instance)`.
+ * If `CSTL_wstring_empty(instance) == true` then
+ * `CSTL_wstring_begin(instance) == CSTL_wstring_end(instance)`.
  * 
  */
 wchar_t* CSTL_wstring_end(CSTL_WideStringRef instance);
@@ -294,8 +294,8 @@ wchar_t* CSTL_wstring_end(CSTL_WideStringRef instance);
 /**
  * Returns a const iterator (pointer) past the last character of the string.
  * 
- * If `CSTL_*string_empty(instance) == true` then
- * `CSTL_*string_const_begin(instance) == CSTL_*string_const_end(instance)`.
+ * If `CSTL_wstring_empty(instance) == true` then
+ * `CSTL_wstring_const_begin(instance) == CSTL_wstring_const_end(instance)`.
  * 
  */
 const wchar_t* CSTL_wstring_const_end(CSTL_WideStringCRef instance);
@@ -331,10 +331,10 @@ size_t CSTL_wstring_capacity(CSTL_WideStringCRef instance);
 size_t CSTL_wstring_max_size();
 
 /**
- * If `new_capacity > CSTL_*string_capacity(instance)`, reallocates and expands
+ * If `new_capacity > CSTL_wstring_capacity(instance)`, reallocates and expands
  * the underlying array storage.
  * 
- * If `new_capacity` exceeds `CSTL_*string_max_size()` this function has no effect
+ * If `new_capacity` exceeds `CSTL_wstring_max_size()` this function has no effect
  * and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -355,7 +355,7 @@ void CSTL_wstring_clear(CSTL_WideStringRef instance);
 /**
  * Inserts the null-terminated string at `ptr` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -367,7 +367,7 @@ wchar_t* CSTL_wstring_insert(CSTL_WideStringRef instance, const wchar_t* where, 
 /**
  * Inserts the first `count` characters of the string at `ptr` at the pointer  `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -379,7 +379,7 @@ wchar_t* CSTL_wstring_insert_n(CSTL_WideStringRef instance, const wchar_t* where
 /**
  * Inserts `count` copies of the character `ch` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -391,7 +391,7 @@ wchar_t* CSTL_wstring_insert_char(CSTL_WideStringRef instance, const wchar_t* wh
 /**
  * Inserts the string `other` at the pointer `where` in `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -404,8 +404,8 @@ wchar_t* CSTL_wstring_insert_str(CSTL_WideStringRef instance, const wchar_t* whe
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at the pointer `where` in `instance`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_wstring_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `NULL`, otherwise it returns a pointer
  * to the first inserted character.
  * 
@@ -417,8 +417,8 @@ wchar_t* CSTL_wstring_insert_substr(CSTL_WideStringRef instance, const wchar_t* 
 /**
  * Inserts the null-terminated string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -427,8 +427,8 @@ bool CSTL_wstring_insert_at(CSTL_WideStringRef instance, size_t off, const wchar
 /**
  * Inserts the first `count` characters of the string at `ptr` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -437,8 +437,8 @@ bool CSTL_wstring_insert_n_at(CSTL_WideStringRef instance, size_t off, const wch
 /**
  * Inserts `count` copies of the character `ch` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -447,8 +447,8 @@ bool CSTL_wstring_insert_char_at(CSTL_WideStringRef instance, size_t off, size_t
 /**
  * Inserts the string `other` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -458,9 +458,9 @@ bool CSTL_wstring_insert_str_at(CSTL_WideStringRef instance, size_t off, CSTL_Wi
  * Inserts the substring at offset `other_off` in `other` with the length
  * given by `count` at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_wstring_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -489,7 +489,7 @@ wchar_t* CSTL_wstring_erase_substr(CSTL_WideStringRef instance, const wchar_t* f
 /**
  * Removes the character at offset `off` in `instance`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -498,7 +498,7 @@ bool CSTL_wstring_erase_at(CSTL_WideStringRef instance, size_t off);
 /**
  * Removes the substring at offset `off` in `instance` with the length given by `count`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -507,7 +507,7 @@ bool CSTL_wstring_erase_substr_at(CSTL_WideStringRef instance, size_t off, size_
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_wstring_size(instance) == CSTL_wstring_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -516,7 +516,7 @@ bool CSTL_wstring_push_back(CSTL_WideStringRef instance, wchar_t ch, CSTL_Alloc*
 /**
  * Appends the character `ch` to the end of the string.
  * 
- * If `CSTL_*string_size(instance) == CSTL_*string_max_size()` this function
+ * If `CSTL_wstring_size(instance) == CSTL_wstring_max_size()` this function
  * has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -525,7 +525,7 @@ void CSTL_wstring_pop_back(CSTL_WideStringRef instance);
 /**
  * Appends the null-terminated string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -534,7 +534,7 @@ bool CSTL_wstring_append(CSTL_WideStringRef instance, const wchar_t* ptr, CSTL_A
 /**
  * Appends the first `count` characters of the string at `ptr` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -543,7 +543,7 @@ bool CSTL_wstring_append_n(CSTL_WideStringRef instance, const wchar_t* ptr, size
 /**
  * Appends `count` copies of the character `ch` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -552,7 +552,7 @@ bool CSTL_wstring_append_char(CSTL_WideStringRef instance, size_t count, wchar_t
 /**
  * Appends the string `other` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -562,7 +562,7 @@ bool CSTL_wstring_append_str(CSTL_WideStringRef instance, CSTL_WideStringCRef ot
  * Appends the substring at offset `other_off` in `other` with the length
  * given by `count` to `instance`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -572,7 +572,7 @@ bool CSTL_wstring_append_substr(CSTL_WideStringRef instance, CSTL_WideStringCRef
  * Replaces the characters in the range `[first, last)` with the null-terminated
  * string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -586,7 +586,7 @@ bool CSTL_wstring_replace(CSTL_WideStringRef instance, const wchar_t* first, con
  * Replaces the characters in the range `[first, last)` with the first `count`
  * characters of the string at `ptr`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -600,7 +600,7 @@ bool CSTL_wstring_replace_n(CSTL_WideStringRef instance, const wchar_t* first, c
  * Replaces the characters in the range `[first, last)` with `count` copies
  * of the character `ch`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -613,7 +613,7 @@ bool CSTL_wstring_replace_char(CSTL_WideStringRef instance, const wchar_t* first
 /**
  * Replaces the characters in the range `[first, last)` with the string `other`.
  * 
- * If the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -627,8 +627,8 @@ bool CSTL_wstring_replace_str(CSTL_WideStringRef instance, const wchar_t* first,
  * Replaces the characters in the range `[first, last)` with the substring
  * at offset `other_off` in `other` with the length given by `count`.
  * 
- * If `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `other_off` is outside of the range `[other, other + CSTL_wstring_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  * If `first == last`, no operation is performed.
@@ -642,8 +642,8 @@ bool CSTL_wstring_replace_substr(CSTL_WideStringRef instance, const wchar_t* fir
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the null-terminated string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -653,8 +653,8 @@ bool CSTL_wstring_replace_at(CSTL_WideStringRef instance, size_t off, size_t cou
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the first `count2` characters of the string at `ptr`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -664,8 +664,8 @@ bool CSTL_wstring_replace_n_at(CSTL_WideStringRef instance, size_t off, size_t c
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with `count` copies of the character `ch`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -675,8 +675,8 @@ bool CSTL_wstring_replace_char_at(CSTL_WideStringRef instance, size_t off, size_
  * Replaces the substring at offset `off` in `instance` with the length given by `count`
  * with the string `other`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -687,9 +687,9 @@ bool CSTL_wstring_replace_str_at(CSTL_WideStringRef instance, size_t off, size_t
  * with the substring at offset `other_off` in `other` with the length
  * given by `count2`.
  * 
- * If `off` is outside of the range `[instance, instance + CSTL_*string_size(instance)]`
- * or if `other_off` is outside of the range `[other, other + CSTL_*string_size(other)]`
- * or if the length of the resulting string is greater than `CSTL_*string_max_size()`
+ * If `off` is outside of the range `[instance, instance + CSTL_wstring_size(instance)]`
+ * or if `other_off` is outside of the range `[other, other + CSTL_wstring_size(other)]`
+ * or if the length of the resulting string is greater than `CSTL_wstring_max_size()`
  * this function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -700,7 +700,7 @@ bool CSTL_wstring_replace_substr_at(CSTL_WideStringRef instance, size_t off, siz
  * `dest`. The resulting character string is not null terminated.
  * 
  * Returns the number of characters copied or `CSTL_string_npos` if
- * `off > CSTL_*string_size(instance)` (out of range).
+ * `off > CSTL_wstring_size(instance)` (out of range).
  * 
  */
 size_t CSTL_wstring_copy(CSTL_WideStringCRef instance, wchar_t* dest, size_t count, size_t off);
@@ -709,7 +709,7 @@ size_t CSTL_wstring_copy(CSTL_WideStringCRef instance, wchar_t* dest, size_t cou
  * Resizes the string to contain `new_size` characters, appending `ch`
  * if current size is less than `new_size`.
  * 
- * If `new_size` is greater than `CSTL_*string_max_size()` this
+ * If `new_size` is greater than `CSTL_wstring_max_size()` this
  * function has no effect and returns `false`, otherwise it returns `true`.
  * 
  */
@@ -794,7 +794,7 @@ size_t CSTL_wstring_rfind_str(CSTL_WideStringCRef instance, CSTL_WideStringCRef 
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_WideString` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -808,9 +808,9 @@ int CSTL_wstring_compare(const wchar_t* left, const wchar_t* right);
  * compare equal.
  * 
  * To compare an explicit length `left` and a null-terminated `right`,
- * swap them and negate the result: `-CSTL_*string_compare_n(right, left, left_count)`.
+ * swap them and negate the result: `-CSTL_wstring_compare_n(right, left, left_count)`.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_WideString` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
@@ -823,7 +823,7 @@ int CSTL_wstring_compare_n(const wchar_t* left, const wchar_t* right, size_t rig
  * positive if it compares greater and zero if `left` and `right`
  * compare equal.
  * 
- * There is no `CSTL_*String` version of this function as the return
+ * There is no `CSTL_WideString` version of this function as the return
  * value does not allow for reporting out of bounds errors.
  * 
  */
