@@ -6,6 +6,7 @@
 #include "../alloc.h"
 #include "../type.h"
 
+#include "alloc_dispatch.h"
 #include "type_ext.h"
 
 #include <assert.h>
@@ -13,85 +14,35 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct CSTL_SmallAllocFrame {
-    void* pointer;
-    char _buf[512];
-    uintptr_t cookie;
-} CSTL_SmallAllocFrame;
-
-static inline void* CSTL_alloc(size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
+static inline void* CSTL_type_allocate(size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
     size_t size      = count * type->size;
     size_t alignment = CSTL_type_alignment(type);
 
-    if (alloc == NULL) {
-#ifdef _CRTALLOCATOR
-        return _aligned_malloc(size, alignment);
-#else
-        return aligned_alloc(alignment, size);
-#endif
-    }
-
-    assert(alloc->aligned_alloc != NULL);
-
-    return alloc->aligned_alloc(alloc->opaque, size, alignment);
+    return CSTL_allocate(size, alignment, alloc);
 }
 
-static inline void CSTL_free(void* memory, size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
+static inline void CSTL_type_free(void* memory, size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
     size_t size      = count * type->size;
     size_t alignment = CSTL_type_alignment(type);
 
-    if (alloc == NULL) {
-#ifdef _CRTALLOCATOR
-        _aligned_free(memory);
-#else
-        free(memory);
-#endif
-        return;
-    }
-
-    assert(alloc->aligned_free != NULL);
-
-    alloc->aligned_free(alloc->opaque, memory, size, alignment);
+    CSTL_free(memory, size, alignment, alloc);
 }
 
-static inline void* CSTL_small_alloc(CSTL_SmallAllocFrame* frame, size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
-    size_t align_val  = CSTL_type_alignment(type) - 1;
-    size_t align_size = type->size * count;
+static inline void* CSTL_type_small_alloc(CSTL_SmallAllocFrame* frame, size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
+    size_t size      = count * type->size;
+    size_t alignment = CSTL_type_alignment(type);
 
-    uintptr_t frame_base = (uintptr_t)&frame->_buf;
-    uintptr_t alloc_base = (frame_base + align_val) & ~align_val;
-
-#ifndef NDEBUG
-    frame->cookie = frame_base ^ (uintptr_t)type->size_rcp;
-#endif
-
-    if (frame_base + sizeof(frame->_buf) >= alloc_base + align_size
-        && frame_base >= alloc_base) {
-        frame->pointer = (void*)alloc_base;
-    } else {
-        frame->pointer = CSTL_alloc(count, type, alloc);
-    }
-
-    return frame->pointer;
+    return CSTL_small_alloc(frame, size, alignment, alloc, (uintptr_t)type->size_rcp);
 }
 
-static inline void CSTL_small_free(CSTL_SmallAllocFrame* frame, size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
-    size_t align_size = type->size * count;
+static inline void CSTL_type_small_free(CSTL_SmallAllocFrame* frame, size_t count, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
+    size_t size      = count * type->size;
+    size_t alignment = CSTL_type_alignment(type);
 
-    uintptr_t alloc_base  = (uintptr_t)frame->pointer;
-    uintptr_t frame_base = (uintptr_t)&frame->_buf;
-
-    assert(frame->cookie == (frame_base ^ (uintptr_t)type->size_rcp));
-
-    if (frame_base + sizeof(frame->_buf) < alloc_base + align_size
-        || frame_base < alloc_base) {
-        CSTL_free(frame->pointer, count, type, alloc);
-    }
-
-    frame->pointer = NULL;
+    CSTL_small_free(frame, size, alignment, alloc, (uintptr_t)type->size_rcp);
 }
 
-static inline void CSTL_move_from(void* new_instance, void* src, CSTL_TypeCRef type) {
+static inline void CSTL_type_move_from(void* new_instance, void* src, CSTL_TypeCRef type) {
     assert(new_instance != NULL);
     assert(src != NULL);
 
@@ -102,7 +53,7 @@ static inline void CSTL_move_from(void* new_instance, void* src, CSTL_TypeCRef t
     }
 }
 
-static inline void CSTL_copy_from(void* new_instance, const void* src, CSTL_TypeCRef type) {
+static inline void CSTL_type_copy_from(void* new_instance, const void* src, CSTL_TypeCRef type) {
     assert(new_instance != NULL);
     assert(src != NULL);
 
@@ -113,7 +64,7 @@ static inline void CSTL_copy_from(void* new_instance, const void* src, CSTL_Type
     }
 }
 
-static inline void CSTL_destroy_at(void* instance, CSTL_TypeCRef type) {
+static inline void CSTL_type_destroy_at(void* instance, CSTL_TypeCRef type) {
     assert(instance != NULL);
 
     if (type->destroy != NULL) {
@@ -123,7 +74,7 @@ static inline void CSTL_destroy_at(void* instance, CSTL_TypeCRef type) {
     }
 }
 
-static inline bool CSTL_is_eq(const void* lhs, const void* rhs, CSTL_EqTypeCRef type) {
+static inline bool CSTL_type_is_eq(const void* lhs, const void* rhs, CSTL_EqTypeCRef type) {
     assert(lhs != NULL);
     assert(rhs != NULL);
 
@@ -134,7 +85,7 @@ static inline bool CSTL_is_eq(const void* lhs, const void* rhs, CSTL_EqTypeCRef 
     }
 }
 
-static inline bool CSTL_is_lt(const void* lhs, const void* rhs, CSTL_CompTypeCRef type) {
+static inline bool CSTL_type_is_lt(const void* lhs, const void* rhs, CSTL_CompTypeCRef type) {
     assert(lhs != NULL);
     assert(rhs != NULL);
 
@@ -162,7 +113,7 @@ static inline size_t CSTL_fnv1a_append_bytes(size_t val, const unsigned char* co
     return val;
 }
 
-static inline size_t CSTL_hash(const void* instance, CSTL_HashTypeCRef type) {
+static inline size_t CSTL_type_hash(const void* instance, CSTL_HashTypeCRef type) {
     assert(instance != NULL);
 
     if (type->hash != NULL) {

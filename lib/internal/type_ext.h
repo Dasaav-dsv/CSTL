@@ -8,15 +8,9 @@
 
 #define CSTL_TYPE_INVALID 0b0000000000000001
 
-#if defined(__cplusplus)
-#include <cstddef>
-#include <cstdint>
-extern "C" {
-#else
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#endif
 
 static inline size_t CSTL_type_alignment(CSTL_TypeCRef type) {
     return (size_t)1 << type->align_lg;
@@ -49,9 +43,5 @@ static inline void* CSTL_pointer_sub(const void* pointer, ptrdiff_t n, CSTL_Type
 static inline ptrdiff_t CSTL_pointer_distance(const void* lhs, const void* rhs, CSTL_TypeCRef type) {
     return CSTL_type_divide_by_rcp_signed((intptr_t)rhs - (intptr_t)lhs, type);
 }
-
-#if defined(__cplusplus)
-}
-#endif
 
 #endif
