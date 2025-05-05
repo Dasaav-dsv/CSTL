@@ -21,11 +21,11 @@ static inline bool CSTL_is_address_aligned(uintptr_t address, CSTL_TypeCRef type
 }
 
 static inline size_t CSTL_type_divide_by_rcp(size_t dividend, CSTL_TypeCRef type) {
-    return CSTL_divide_by_rcp(dividend, type->size_rcp, type->size_rcp_sh);
+    return CSTL_divide_by_rcp(dividend, type->size_rcp, type->size_rcp_sh, type->size);
 }
 
 static inline ptrdiff_t CSTL_type_divide_by_rcp_signed(ptrdiff_t dividend, CSTL_TypeCRef type) {
-    return CSTL_divide_by_rcp_signed(dividend, type->size_rcp, type->size_rcp_sh);
+    return CSTL_divide_by_rcp_signed(dividend, type->size_rcp, type->size_rcp_sh, type->size);
 }
 
 static inline size_t CSTL_type_remainder_by_rcp(size_t dividend, CSTL_TypeCRef type) {

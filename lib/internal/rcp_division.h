@@ -16,7 +16,7 @@ static inline size_t CSTL_fixed_point_euclid_rcp(size_t divisor, uint8_t* shift)
     const size_t max_pos  = sz_width * 2;
 
     if (divisor > sz_half) {
-        return SIZE_MAX;
+        return 0;
     }
 
     // Largest dividend such that dividend % divisor = divisor - 1:
@@ -61,28 +61,34 @@ static inline size_t CSTL_fixed_point_euclid_rcp(size_t divisor, uint8_t* shift)
 #include <intrin.h>
 #endif
 
-static inline size_t CSTL_divide_by_rcp(size_t dividend, size_t rcp, uint8_t shift) {
+static inline size_t CSTL_divide_by_rcp(size_t dividend, size_t rcp, uint8_t shift, size_t divisor) {
 #if defined(_WIN64)
-    return __umulh(dividend, rcp) >> shift;
+    size_t result = (size_t)(__umulh(dividend, rcp) >> shift);
 #elif defined(_WIN32)
-    return __emulu(dividend, rcp) >> shift;
+    size_t result = (size_t)(__emulu(dividend, rcp) >> shift);
 #elif defined(__x86_64__) || defined(__LP64__)
-    size_t hi = (size_t)(((unsigned __int128)dividend * (unsigned __int128)rcp) >> 64);
-    return hi >> shift;
+    uint64_t hi = (uint64_t)(((unsigned __int128)dividend * (unsigned __int128)rcp) >> 64);
+    size_t result = (size_t)(hi >> shift);
 #else
-    size_t hi = (size_t)(((uint64_t)dividend * (uint64_t)rcp) >> 32);
-    return hi >> shift;
+    uint32_t hi = (uint32_t)(((uint64_t)dividend * (uint64_t)rcp) >> 32);
+    size_t result = (size_t)(hi >> shift);
 #endif
+
+    if (rcp == 0) {
+        return dividend / divisor;
+    }
+
+    return result;
 }
 
-static inline ptrdiff_t CSTL_divide_by_rcp_signed(ptrdiff_t dividend, size_t rcp, uint8_t shift) {
+static inline ptrdiff_t CSTL_divide_by_rcp_signed(ptrdiff_t dividend, size_t rcp, uint8_t shift, size_t divisor) {
     size_t abs_dividend = dividend < 0 ? -dividend : dividend;
-    size_t abs_result = CSTL_divide_by_rcp(abs_dividend, rcp, shift);
+    size_t abs_result = CSTL_divide_by_rcp(abs_dividend, rcp, shift, divisor);
     return dividend < 0 ? -(ptrdiff_t)abs_result : (ptrdiff_t)abs_result;
 }
 
 static inline size_t CSTL_remainder_by_rcp(size_t dividend, size_t rcp, uint8_t shift, size_t divisor) {
-    size_t quotient = CSTL_divide_by_rcp(dividend, rcp, shift);
+    size_t quotient = CSTL_divide_by_rcp(dividend, rcp, shift, divisor);
 
     return dividend - quotient * divisor;
 }
