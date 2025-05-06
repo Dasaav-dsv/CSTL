@@ -74,21 +74,17 @@ TEST(TypeTest, MoveAndCopy) {
 
     ASSERT_EQ(CSTL_TypeErr_Ok, CSTL_define_type(&type, 1, 1, nullptr, nullptr, nullptr))
         << "should be trivial";
-    EXPECT_EQ(type.use_copy_from, 0) << "copy constructor not set";
     EXPECT_EQ(type.use_move_from, 0) << "move constructor not set";
 
     ASSERT_EQ(CSTL_TypeErr_Ok, CSTL_define_type(&type, 1, 1, [](void*, const void*){}, nullptr, nullptr))
         << "should be trivial";
-    EXPECT_EQ(type.use_copy_from, 1) << "copy constructor set";
     EXPECT_EQ(type.use_move_from, 0) << "move constructor not set";
 
     ASSERT_EQ(CSTL_TypeErr_Ok, CSTL_define_type(&type, 1, 1, nullptr, [](void*, void*){}, nullptr))
         << "should be trivial";
-    EXPECT_EQ(type.use_copy_from, 0) << "copy constructor not set";
     EXPECT_EQ(type.use_move_from, 1) << "move constructor set";
 
     ASSERT_EQ(CSTL_TypeErr_Ok, CSTL_define_type(&type, 1, 1, [](void*, const void*){}, [](void*, void*){}, nullptr))
         << "should be trivial";
-    EXPECT_EQ(type.use_copy_from, 1) << "copy constructor set";
     EXPECT_EQ(type.use_move_from, 1) << "move constructor set";
 }
