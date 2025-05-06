@@ -80,7 +80,7 @@ typedef struct CSTL_Type {
      * Opaque bitfield with unstable ABI.
      * 
      */
-    uint16_t internal_flags;
+    uint8_t internal_flags;
 
     /**
      * Bound copy constructor function.

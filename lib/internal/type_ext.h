@@ -6,7 +6,7 @@
 #include "../type.h"
 #include "rcp_division.h"
 
-#define CSTL_TYPE_INVALID 0b0000000000000001
+#define CSTL_TYPE_INVALID 0b00000001
 
 #include <stdbool.h>
 #include <stddef.h>
