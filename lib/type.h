@@ -56,16 +56,7 @@ typedef struct CSTL_Type {
      * Calculated automatically by `CSTL_define_*_type`.
      * 
      */
-    uint8_t align_lg : 6;
-
-    /**
-     * Determines whether `copy_from` can be called on a `const void*` pointer
-     * to an object of this type.
-     * 
-     * Set by `CSTL_define_*_type` or manually.
-     * 
-     */
-    uint8_t use_copy_from: 1;
+    uint8_t align_lg;
 
     /**
      * Determines whether `move_from` can be called on a `void*` pointer
@@ -74,7 +65,7 @@ typedef struct CSTL_Type {
      * Set by `CSTL_define_*_type` or manually.
      * 
      */
-    uint8_t use_move_from: 1;
+    uint8_t use_move_from;
 
     /**
      * Opaque bitfield with unstable ABI.

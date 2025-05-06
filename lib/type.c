@@ -22,7 +22,6 @@ CSTL_TypeErr CSTL_define_type(
             .size_rcp = SIZE_MAX,
             .size_rcp_sh = 0,
             .align_lg = 0,
-            .use_copy_from = (uint8_t)(copy_from != NULL),
             .use_move_from = (uint8_t)(move_from != NULL),
             .internal_flags = CSTL_TYPE_INVALID,
             .copy_from = copy_from,
