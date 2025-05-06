@@ -60,7 +60,7 @@ static inline void CSTL_type_copy_from(void* new_instance, const void* src, CSTL
     if (type->copy_from != NULL) {
         type->copy_from(new_instance, src);
     } else {
-        memcpy(new_instance, src, type->size);
+        memmove(new_instance, src, type->size);
     }
 }
 

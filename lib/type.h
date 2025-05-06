@@ -87,7 +87,7 @@ typedef struct CSTL_Type {
      * 
      * It is NOT permitted to mutate the `source`.
      * 
-     * If null a `memcpy(new_instance, src, size)` will be used in its stead.
+     * If null a `memmove(new_instance, src, size)` will be used in its stead.
      * 
      */
     void (*copy_from)(void* new_instance, const void* src);
