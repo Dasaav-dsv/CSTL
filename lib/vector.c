@@ -214,8 +214,8 @@ bool CSTL_vector_assign_n(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyType
     }
 
     char* first = instance->first;
-    char* last  = instance->first;
-    char* end   = instance->first;
+    char* last  = instance->last;
+    char* end   = instance->end;
 
     if (new_bytes > (size_t)(end - first)) { // reallocate
         size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
@@ -268,8 +268,8 @@ bool CSTL_vector_copy_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL
     size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     char* first = instance->first;
-    char* last  = instance->first;
-    char* end   = instance->first;
+    char* last  = instance->last;
+    char* end   = instance->end;
 
     if (new_bytes > CSTL_vector_capacity_bytes(instance)) { // reallocate
         size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
@@ -324,8 +324,8 @@ bool CSTL_vector_move_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL
     size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     char* first = instance->first;
-    char* last  = instance->first;
-    char* end   = instance->first;
+    char* last  = instance->last;
+    char* end   = instance->end;
 
     if (new_bytes > CSTL_vector_capacity_bytes(instance)) { // reallocate
         size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
