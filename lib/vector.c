@@ -1,182 +1,88 @@
 #include "vector.h"
-#include "internal/vector_dbg.h"
 
-#include "internal/type_dispatch.h"
+#ifndef NDEBUG
+static inline bool CSTL_verify_address(CSTL_VectorCRef instance, const char* address) {
+    return address >= instance->first && address <= instance->last;
+}
+
+#define CSTL_verify_iterator(iterator) \
+    assert(CSTL_verify_address((iterator)->owner, (iterator)->pointer))
+
+#define CSTL_set_iterator_owner(iterator, owned_by) \
+    (iterator)->owner = (owned_by)
+#else
+#define CSTL_verify_iterator(iterator) (void)(iterator)
+#define CSTL_set_iterator_owner(iterator, owned_by) (void)(iterator)
+#endif
+
+// #include "internal/type_dispatch.h"
+#include "internal/alloc_dispatch.h"
 #include "internal/type_ext.h"
 
 #include <stddef.h>
 #include <stdint.h>
 #include <limits.h>
 
-void* CSTL_fill(void* first, void* last, const void* value, CSTL_TypeCRef type) {
-    while ((uintptr_t)first < (uintptr_t)last) {
-        CSTL_type_destroy_at(first, type);
-        CSTL_type_copy_from(first, value, type);
-        first = CSTL_pointer_add(first, 1, type);
-    }
-    return first;
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4146) // dumb non-standard diagnostic
+#endif
+
+static inline size_t CSTL_vector_size_bytes(CSTL_VectorCRef instance) {
+    return (size_t)((char*)instance->last - (char*)instance->first);
 }
 
-void* CSTL_fill_n(void* first, size_t count, const void* value, CSTL_TypeCRef type) {
-    for (; count != 0; --count) {
-        CSTL_type_destroy_at(first, type);
-        CSTL_type_copy_from(first, value, type);
-        first = CSTL_pointer_add(first, 1, type);
-    }
-    return first;
+static inline size_t CSTL_vector_capacity_bytes(CSTL_VectorCRef instance) {
+    return (size_t)((char*)instance->end - (char*)instance->first);
 }
 
-void* CSTL_uninitialized_fill(void* first, void* last, const void* value, CSTL_TypeCRef type) {
-    while ((uintptr_t)first < (uintptr_t)last) {
-        CSTL_type_copy_from(first, value, type);
-        first = CSTL_pointer_add(first, 1, type);
-    }
-    return first;
+static inline size_t CSTL_vector_bytes_max(size_t size) {
+    return ((size_t)PTRDIFF_MAX - 1) / size * size;
 }
 
-void* CSTL_uninitialized_fill_n(void* first, size_t count, const void* value, CSTL_TypeCRef type) {
-    for (; count != 0; --count) {
-        CSTL_type_copy_from(first, value, type);
-        first = CSTL_pointer_add(first, 1, type);
+static inline bool CSTL_vector_checked_mul(size_t* bytes, size_t type_size, size_t n) {
+    *bytes = n * type_size;
+
+    if ((*bytes / type_size) != n || *bytes >= CSTL_vector_bytes_max(type_size)) {
+        return false;
     }
-    return first;
+
+    return true;
 }
 
-void* CSTL_copy(const void* first, const void* last, void* dest, CSTL_TypeCRef type) {
-    while ((uintptr_t)first < (uintptr_t)last) {
-        CSTL_type_destroy_at(dest, type);
-        CSTL_type_copy_from(dest, first, type);
-        first = CSTL_pointer_add(first, 1, type);
-        dest  = CSTL_pointer_add(dest, 1, type);
-    }
-    return dest;
-}
+static inline size_t CSTL_vector_growth_bytes(CSTL_VectorCRef instance, size_t type_size, size_t new_bytes) {
+    size_t old_bytes = (size_t)((char*)instance->end - instance->first);
+    size_t max_bytes = CSTL_vector_bytes_max(type_size);
 
-void* CSTL_copy_n(const void* first, size_t count, void* dest, CSTL_TypeCRef type) {
-    for (; count != 0; --count) {
-        CSTL_type_destroy_at(dest, type);
-        CSTL_type_copy_from(dest, first, type);
-        first = CSTL_pointer_add(first, 1, type);
-        dest  = CSTL_pointer_add(dest, 1, type);
-    }
-    return dest;
-}
-
-void* CSTL_uninitialized_copy_n(const void* first, size_t count, void* dest, CSTL_TypeCRef type) {
-    for (; count != 0; --count) {
-        CSTL_type_copy_from(dest, first, type);
-        first = CSTL_pointer_add(first, 1, type);
-        dest  = CSTL_pointer_add(dest, 1, type);
-    }
-    return dest;
-}
-
-void* CSTL_copy_backwards(const void* first, const void* last, void* dest, CSTL_TypeCRef type) {
-    while ((uintptr_t)first < (uintptr_t)last) {
-        last = CSTL_pointer_sub(last, 1, type);
-        dest = CSTL_pointer_sub(dest, 1, type);
-        CSTL_type_destroy_at(dest, type);
-        CSTL_type_copy_from(dest, last, type);
-    }
-    return dest;
-}
-
-void* CSTL_move(void* first, void* last, void* dest, CSTL_TypeCRef type) {
-    while ((uintptr_t)first < (uintptr_t)last) {
-        CSTL_type_destroy_at(dest, type);
-        CSTL_type_move_from(dest, first, type);
-        first = CSTL_pointer_add(first, 1, type);
-        dest  = CSTL_pointer_add(dest, 1, type);
-    }
-    return dest;
-}
-
-void* CSTL_move_n(void* first, size_t count, void* dest, CSTL_TypeCRef type) {
-    for (; count != 0; --count) {
-        CSTL_type_destroy_at(dest, type);
-        CSTL_type_move_from(dest, first, type);
-        first = CSTL_pointer_add(first, 1, type);
-        dest  = CSTL_pointer_add(dest, 1, type);
-    }
-    return dest;
-}
-
-void* CSTL_uninitialized_move_n(void* first, size_t count, void* dest, CSTL_TypeCRef type) {
-    for (; count != 0; --count) {
-        CSTL_type_move_from(dest, first, type);
-        first = CSTL_pointer_add(first, 1, type);
-        dest  = CSTL_pointer_add(dest, 1, type);
-    }
-    return dest;
-}
-
-void* CSTL_move_backwards(void* first, void* last, void* dest, CSTL_TypeCRef type) {
-    while ((uintptr_t)first < (uintptr_t)last) {
-        last = CSTL_pointer_sub(last, 1, type);
-        dest = CSTL_pointer_sub(dest, 1, type);
-        CSTL_type_destroy_at(dest, type);
-        CSTL_type_move_from(dest, last, type);
-    }
-    return dest;
-}
-
-void* CSTL_destroy(void* first, void* last, CSTL_TypeCRef type) {
-    while ((uintptr_t)first < (uintptr_t)last) {
-        CSTL_type_destroy_at(first, type);
-        first = CSTL_pointer_add(first, 1, type);
-    }
-    return first;
-}
-
-void* CSTL_destroy_n(void* first, size_t count, CSTL_TypeCRef type) {
-    for (; 0 < count; --count) {
-        CSTL_type_destroy_at(first, type);
-        first = CSTL_pointer_add(first, 1, type);
-    }
-    return first;
-}
-
-static inline size_t CSTL_vector_calculate_growth(CSTL_VectorCtx context, size_t new_size) {
-    CSTL_TypeCRef type = (CSTL_TypeCRef)context.type;
-
-    size_t old_capacity = ndbg_vector_capacity(context);
-    size_t max          = ndbg_vector_max_size(type);
-
-    if (old_capacity > max - old_capacity / 2) {
-        return max; // geometric growth would overflow
+    if (old_bytes > max_bytes - old_bytes) {
+        return max_bytes; // geometric growth would overflow
     }
 
-    size_t geometric = old_capacity + old_capacity / 2;
+    size_t geometric = old_bytes + old_bytes;
 
-    if (geometric < new_size) {
-        return new_size; // geometric growth would be insufficient
+    if (geometric < new_bytes) {
+        return new_bytes; // geometric growth would be insufficient
     }
 
     return geometric; // geometric growth is sufficient
 }
 
-CSTL_VectorVal CSTL_vector_new_with_capacity(size_t capacity, CSTL_TypeCRef type, CSTL_Alloc* alloc) {
-    void* first = CSTL_type_allocate(capacity, type, alloc);
+static inline CSTL_VectorVal CSTL_vector_new_with_bytes(size_t bytes, size_t alignment, CSTL_Alloc* alloc) {
+    char* first = CSTL_allocate(bytes, alignment, alloc);
+    char* last  = first;
+    char* end   = first != NULL ? first + bytes : NULL;
 
-    CSTL_VectorVal tmp = {
-        .first = first,
-        .last  = first,
-        .end   = CSTL_pointer_add(first, (ptrdiff_t)capacity, type)
-    };
+    CSTL_VectorVal tmp = {first, last, end};
 
     return tmp;
 }
 
-void CSTL_vector_tidy(CSTL_VectorCtx context, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
+static inline void CSTL_vector_tidy(CSTL_VectorRef instance, size_t alignment, CSTL_DropTypeCRef drop, CSTL_Alloc* alloc) {
     if (instance->first) {
-        size_t size     = ndbg_vector_size(context);
-        size_t capacity = ndbg_vector_capacity(context);
-
-        CSTL_destroy_n(instance->first, size, type);
-        CSTL_type_free(instance->first, capacity, type, alloc);
+        drop->drop(instance->first, instance->last);
+        
+        CSTL_free(instance->first, CSTL_vector_capacity_bytes(instance),
+            alignment, alloc);
 
         instance->first = NULL;
         instance->last  = NULL;
@@ -184,214 +90,289 @@ void CSTL_vector_tidy(CSTL_VectorCtx context, CSTL_Alloc* alloc) {
     }
 }
 
-void CSTL_vector_replace(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorVal new) {
-    CSTL_vector_tidy(context, alloc);
-    *(CSTL_VectorRef)context.instance = new;
+static inline void CSTL_vector_replace(CSTL_VectorRef instance, size_t alignment, CSTL_DropTypeCRef drop, CSTL_Alloc* alloc, CSTL_VectorVal val) {
+    CSTL_vector_tidy(instance, alignment, drop, alloc);
+    *instance = val;
 }
 
-bool CSTL_vector_clear_and_reserve_geometric(CSTL_VectorCtx context, size_t new_size, CSTL_Alloc* alloc) {
-    CSTL_TypeCRef type = (CSTL_TypeCRef)context.type;
+static inline bool CSTL_vector_reallocate_bytes(CSTL_VectorRef instance, size_t alignment, CSTL_MoveTypeCRef move, size_t new_bytes, CSTL_Alloc* old_alloc, CSTL_Alloc* new_alloc) {   
+    CSTL_VectorVal tmp = CSTL_vector_new_with_bytes(new_bytes, alignment, new_alloc);
 
-    if (new_size > ndbg_vector_max_size(type)) {
+    if (tmp.first == NULL) {
         return false;
     }
 
-    size_t new_capacity = CSTL_vector_calculate_growth(context, new_size);
+    tmp.last = (char*)tmp.first + CSTL_vector_size_bytes(instance);
+    move->move(instance->first, instance->last, tmp.first);
 
-    CSTL_VectorVal tmp = CSTL_vector_new_with_capacity(new_capacity, type, alloc);
-    CSTL_vector_replace(context, alloc, tmp);
-
-    return true;
-}
-
-void CSTL_vector_construct(CSTL_VectorCtx context) {
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    
-    CSTL_VectorVal* instance = (CSTL_VectorVal*)context.instance;
-
-    if (instance == NULL) {
-        return;
-    }
-
-    instance->first = NULL;
-    instance->last = NULL;
-    instance->end = NULL;
-}
-
-void CSTL_vector_destroy(CSTL_VectorCtx context, CSTL_Alloc* alloc) {
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-
-    CSTL_vector_tidy(context, alloc);
-}
-
-bool CSTL_vector_assign(CSTL_VectorCtx context, size_t new_size, const void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(!CSTL_verify_address_in_vector(instance, (uintptr_t)value));
-
-    size_t old_capacity = ndbg_vector_capacity(context);
-    if (new_size > old_capacity) { // reallocate
-        if (!CSTL_vector_clear_and_reserve_geometric(context, new_size, alloc)) {
-            return false;
-        }
-
-        instance->last = CSTL_uninitialized_fill_n(instance->first, new_size, value, type);
-
-        return true;
-    }
-
-    void* old_first = (void*)instance->first;
-    void* old_last  = (void*)instance->last;
-    void* new_last  = CSTL_pointer_add(old_first, (ptrdiff_t)new_size, type);
-
-    if ((uintptr_t)old_last < (uintptr_t)new_last) {
-        CSTL_fill(old_first, old_last, value, type);
-
-        instance->last = CSTL_uninitialized_fill(old_last, new_last, value, type);
-    } else {
-        instance->last = CSTL_fill(old_first, new_last, value, type);
-
-        CSTL_destroy(instance->last, old_last, type);
-    }
+    CSTL_vector_replace(instance, alignment, &move->drop_type, old_alloc, tmp);
 
     return true;
 }
 
-void CSTL_vector_copy_assign_counted_range(CSTL_VectorCtx context, const void* first, size_t new_size, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
+static inline void* CSTL_vector_sized_move(size_t type_size, CSTL_MoveTypeCRef move, void* first, void* last, void* dest) {
+    while ((char*)first < last) {
+        void* dest_next = (char*)dest + type_size;
+        move->drop_type.drop(dest, dest_next);
+        void* first_next = (char*)first + type_size;
+        move->move(first, first_next, dest);
+        dest = dest_next;
+        first = first_next;
+    }
+    return dest;
+}
 
-    // assign elements from counted range [first, first + new_size)
-    size_t old_capacity = ndbg_vector_capacity(context);
-    if (new_size > old_capacity) {
-        CSTL_vector_clear_and_reserve_geometric(context, new_size, alloc);
+static inline void* CSTL_vector_sized_move_backwards(size_t type_size, CSTL_MoveTypeCRef move, void* first, void* last, void* dest) {
+    while ((char*)first < last) {
+        void* dest_prev = dest;
+        dest = (char*)dest - type_size;
+        void* last_prev = last;
+        last = (char*)last - type_size;
+        move->drop_type.drop(dest, dest_prev);
+        move->move(last, last_prev, dest);
+    }
+    return dest;
+}
 
-        instance->last = CSTL_uninitialized_copy_n(first, new_size, instance->first, type);
-
+void CSTL_vector_construct(CSTL_VectorVal* new_instance) {
+    if (new_instance == NULL) {
         return;
     }
 
-    size_t old_size = ndbg_vector_size(context);
-    if (new_size > old_size) {
-        CSTL_copy_n(first, old_size, instance->first, type);
-        first = CSTL_pointer_add(first, (ptrdiff_t)old_size, type);
-
-        instance->last = CSTL_uninitialized_copy_n(first, new_size - old_size, instance->last, type);
-    } else {
-        instance->last = CSTL_copy_n(first, new_size, instance->first, type);
-
-        CSTL_destroy_n(instance->last, old_size - new_size, type);
-    }
+    new_instance->first = NULL;
+    new_instance->last = NULL;
+    new_instance->end = NULL;
 }
 
-void CSTL_vector_move_assign_counted_range(CSTL_VectorCtx context, void* first, size_t new_size, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    size_t old_capacity = ndbg_vector_capacity(context);
-    if (new_size > old_capacity) {
-        CSTL_vector_clear_and_reserve_geometric(context, new_size, alloc);
-
-        if (type->use_move_from) {
-            instance->last = CSTL_uninitialized_move_n(first, new_size, instance->first, type);
-        } else {
-            instance->last = CSTL_uninitialized_copy_n(first, new_size, instance->first, type);
-        }
-
-        return;
-    }
-
-    size_t old_size = ndbg_vector_size(context);
-    if (new_size > old_size) {
-        if (type->use_move_from) {
-            CSTL_move_n(first, old_size, instance->first, type);
-            first = CSTL_pointer_add(first, (ptrdiff_t)old_size, type);
-    
-            instance->last = CSTL_uninitialized_move_n(first, new_size - old_size, instance->last, type);
-        } else {
-            CSTL_copy_n(first, old_size, instance->first, type);
-            first = CSTL_pointer_add(first, (ptrdiff_t)old_size, type);
-    
-            instance->last = CSTL_uninitialized_copy_n(first, new_size - old_size, instance->last, type);
-        }
-    } else {
-        if (type->use_move_from) {
-            instance->last = CSTL_move_n(first, new_size, instance->first, type);
-        } else {
-            instance->last = CSTL_copy_n(first, new_size, instance->first, type);
-        }
-
-        CSTL_destroy_n(instance->last, old_size - new_size, type);
-    }
+void CSTL_vector_destroy(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop, CSTL_Alloc* alloc) {
+    CSTL_vector_tidy(instance, CSTL_alignof_type(type), drop, alloc);
 }
 
-bool CSTL_vector_assign_continuous_range(CSTL_VectorCtx context, size_t new_size, const void* first, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance; (void)instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(!CSTL_verify_address_in_vector(instance, (uintptr_t)first));
-    assert(!CSTL_verify_address_in_vector(instance, (uintptr_t)first + new_size * type->size));
-
-    if (new_size > CSTL_vector_max_size(type)) {
-        return false;
-    }
-
-    CSTL_vector_copy_assign_counted_range(context, first, new_size, alloc);
-
-    return true;
-}
-
-void CSTL_vector_copy_assign(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc) {
-    CSTL_VectorRef instance       = (CSTL_VectorRef)context.instance;
-    CSTL_VectorRef other_instance = (CSTL_VectorRef)other_context.instance;
-
+bool CSTL_vector_copy_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, CSTL_VectorCRef other_instance, CSTL_Alloc* alloc, CSTL_Alloc* other_alloc, bool propagate_alloc) {
     if (instance == other_instance) {
-        return;
+        return true;
     }
 
     if (propagate_alloc) {
         if (alloc != other_alloc) {
-            CSTL_vector_tidy(context, alloc);
+            size_t new_bytes = (size_t)((char*)other_instance->last - other_instance->first);
+
+            if (!CSTL_vector_reallocate_bytes(instance, CSTL_alignof_type(type),
+                &copy->move_type, new_bytes, alloc, other_alloc)) {
+                return false;
+            }
+
             alloc = other_alloc;
         }
     }
-
-    size_t new_size = ndbg_vector_size(other_context);
-    CSTL_vector_copy_assign_counted_range(context, other_instance->first, new_size, alloc);
+    
+    return CSTL_vector_copy_assign_range(instance, type, copy, other_instance->first, other_instance->last, alloc);
 }
 
-void CSTL_vector_move_assign(CSTL_VectorCtx context, CSTL_Alloc* alloc, CSTL_VectorCtx other_context, CSTL_Alloc* other_alloc, bool propagate_alloc) {
-    CSTL_VectorRef instance       = (CSTL_VectorRef)context.instance;
-    CSTL_VectorRef other_instance = (CSTL_VectorRef)other_context.instance;
+bool CSTL_vector_move_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, CSTL_VectorRef other_instance, CSTL_Alloc* alloc, CSTL_Alloc* other_alloc, bool propagate_alloc) {
+    size_t alignment = CSTL_alignof_type(type);
 
     if (instance == other_instance) {
-        return;
+        return true;
     }
 
     if (!propagate_alloc) {
         if (alloc != other_alloc) {
-            size_t new_size = ndbg_vector_size(other_context);
-            CSTL_vector_move_assign_counted_range(context, other_instance->first, new_size, alloc);
+            size_t new_bytes = (size_t)((char*)other_instance->last - other_instance->first);
 
-            return;
+            if (!CSTL_vector_reallocate_bytes(instance, alignment, move, new_bytes, alloc, other_alloc)) {
+                return false;
+            }
+
+            move->drop_type.drop(instance->first, instance->last);
+            move->move(other_instance->first, other_instance->last, instance->first);
+
+            instance->last = (char*)instance->first + new_bytes;
+
+            return true;
         }
     }
 
-    CSTL_vector_replace(context, alloc, *other_instance);
+    CSTL_vector_replace(instance, alignment, &move->drop_type, alloc, *other_instance);
 
     other_instance->first = NULL;
     other_instance->last  = NULL;
     other_instance->end   = NULL;
+
+    return true;
 }
 
-void CSTL_vector_swap(CSTL_VectorCtx context, CSTL_VectorCtx other_context) {
-    CSTL_VectorRef instance       = (CSTL_VectorRef)context.instance;
-    CSTL_VectorRef other_instance = (CSTL_VectorRef)other_context.instance;
+bool CSTL_vector_assign_n(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, size_t new_size, const void* value, CSTL_Alloc* alloc) {
+    CSTL_SmallAllocFrame frame;
 
+    size_t alignment = CSTL_alignof_type(type);
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t new_bytes = 0;
+
+    if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_size)) {
+        return false;
+    }
+
+    char* first = instance->first;
+    char* last  = instance->first;
+    char* end   = instance->first;
+
+    if (new_bytes > (size_t)(end - first)) { // reallocate
+        size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
+        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_bytes, alignment, alloc);
+
+        if (tmp.first == NULL) {
+            return false;
+        }
+
+        tmp.last = (char*)tmp.first + new_bytes;
+        copy->fill(tmp.first, tmp.last, value);
+
+        CSTL_vector_replace(instance, alignment, &copy->move_type.drop_type, alloc, tmp);
+
+        return true;
+    }
+
+    bool is_aliased  = (char*)value >= first && (char*)value < last;
+    uintptr_t cookie = (uintptr_t)&CSTL_vector_assign_n ^ (uintptr_t)&is_aliased;
+    void* tmp        = (void*)value;
+
+    if (is_aliased) {
+        tmp = CSTL_small_alloc(&frame, type_size, alignment, alloc, cookie);
+
+        if (tmp == NULL) {
+            return false;
+        }
+
+        copy->copy(value, (char*)value + type_size, tmp);
+    }
+
+    copy->move_type.drop_type.drop(first, last);
+
+    instance->last = (char*)instance->first + new_bytes;
+    copy->fill(first, instance->last, tmp);
+
+    if (is_aliased) {
+        copy->move_type.drop_type.drop(tmp, (char*)tmp + type_size);
+        CSTL_small_free(&frame, new_bytes, alignment, alloc, cookie);
+    }
+
+    return true;
+}
+
+bool CSTL_vector_copy_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, const void* range_first, const void* range_last, CSTL_Alloc* alloc) {
+    CSTL_SmallAllocFrame frame;
+
+    size_t alignment = CSTL_alignof_type(type);
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t new_bytes = (size_t)((char*)range_last - range_first);
+
+    char* first = instance->first;
+    char* last  = instance->first;
+    char* end   = instance->first;
+
+    if (new_bytes > CSTL_vector_capacity_bytes(instance)) { // reallocate
+        size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
+        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_bytes, alignment, alloc);
+
+        if (tmp.first == NULL) {
+            return false;
+        }
+
+        tmp.last = (char*)tmp.first + new_bytes;
+        copy->copy(range_first, range_last, tmp.first);
+
+        CSTL_vector_replace(instance, alignment, &copy->move_type.drop_type, alloc, tmp);
+
+        return true;
+    }
+
+    bool is_aliased  = (char*)range_last >= first && (char*)range_first < last;
+    uintptr_t cookie = (uintptr_t)&CSTL_vector_copy_assign_range ^ (uintptr_t)&is_aliased;
+    void* tmp_first  = (void*)range_first;
+    void* tmp_last   = (void*)range_last;
+
+    if (is_aliased) {
+        tmp_first = CSTL_small_alloc(&frame, new_bytes, alignment, alloc, cookie);
+        tmp_last  = (char*)tmp_first + new_bytes;
+
+        if (tmp_first == NULL) {
+            return false;
+        }
+
+        copy->copy(range_first, range_last, tmp_first);
+    }
+
+    copy->move_type.drop_type.drop(first, last); 
+    copy->copy(tmp_first, tmp_last, first);
+    
+    instance->last = first + new_bytes;
+
+    if (is_aliased) {
+        copy->move_type.drop_type.drop(tmp_first, tmp_last);
+        CSTL_small_free(&frame, new_bytes, alignment, alloc, cookie);
+    }
+
+    return true;
+}
+
+bool CSTL_vector_move_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, void* range_first, void* range_last, CSTL_Alloc* alloc) {
+    CSTL_SmallAllocFrame frame;
+
+    size_t alignment = CSTL_alignof_type(type);
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t new_bytes = (size_t)((char*)range_last - range_first);
+
+    char* first = instance->first;
+    char* last  = instance->first;
+    char* end   = instance->first;
+
+    if (new_bytes > CSTL_vector_capacity_bytes(instance)) { // reallocate
+        size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
+        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_bytes, alignment, alloc);
+
+        if (tmp.first == NULL) {
+            return false;
+        }
+
+        tmp.last = (char*)tmp.first + new_bytes;
+        move->move(range_first, range_last, tmp.first);
+
+        CSTL_vector_replace(instance, alignment, &move->drop_type, alloc, tmp);
+
+        return true;
+    }
+
+    bool is_aliased  = (char*)range_last >= first && (char*)range_first < last;
+    uintptr_t cookie = (uintptr_t)&CSTL_vector_copy_assign_range ^ (uintptr_t)&is_aliased;
+    void* tmp_first  = (void*)range_first;
+    void* tmp_last   = (void*)range_last;
+
+    if (is_aliased) {
+        tmp_first = CSTL_small_alloc(&frame, new_bytes, alignment, alloc, cookie);
+        tmp_last  = (char*)tmp_first + new_bytes;
+
+        if (tmp_first == NULL) {
+            return false;
+        }
+
+        move->move(range_first, range_last, tmp_first);
+    }
+
+    move->drop_type.drop(first, last); 
+    move->move(tmp_first, tmp_last, first);
+    
+    instance->last = first + new_bytes;
+
+    if (is_aliased) {
+        move->drop_type.drop(tmp_first, tmp_last);
+        CSTL_small_free(&frame, new_bytes, alignment, alloc, cookie);
+    }
+
+    return true;
+}
+
+void CSTL_vector_swap(CSTL_VectorRef instance, CSTL_VectorRef other_instance) {
     void* tmp_first = instance->first;
     void* tmp_last  = instance->last;
     void* tmp_end   = instance->end;
@@ -405,90 +386,104 @@ void CSTL_vector_swap(CSTL_VectorCtx context, CSTL_VectorCtx other_context) {
     other_instance->end   = tmp_end;
 }
 
-void* CSTL_vector_index(CSTL_VectorCtx context, size_t pos) {
-    CSTL_VectorCRef instance = (CSTL_VectorCRef)context.instance;
-    CSTL_TypeCRef type       = (CSTL_TypeCRef)context.type;
+void* CSTL_vector_index(CSTL_VectorRef instance, CSTL_Type type, size_t pos) {
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t pos_bytes = pos * type_size;
 
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-    assert(pos < ndbg_vector_size(context));
+    assert(pos_bytes / type_size == pos);
+    assert(pos_bytes < CSTL_vector_size_bytes(instance));
 
-    return CSTL_pointer_add(instance->first, (ptrdiff_t)pos, type);
+    return (char*)instance->first + pos_bytes;
 }
 
-const void* CSTL_vector_const_index(CSTL_VectorCtx context, size_t pos) {
-    return CSTL_vector_index(context, pos);
+const void* CSTL_vector_const_index(CSTL_VectorCRef instance, CSTL_Type type, size_t pos) {
+    return CSTL_vector_index((CSTL_VectorRef)instance, type, pos);
 }
 
-void* CSTL_vector_at(CSTL_VectorCtx context, size_t pos) {
-    CSTL_VectorCRef instance = (CSTL_VectorCRef)context.instance;
-    CSTL_TypeCRef type       = (CSTL_TypeCRef)context.type;
+void* CSTL_vector_at(CSTL_VectorRef instance, CSTL_Type type, size_t pos) {
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t pos_bytes = 0;
 
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-
-    uintptr_t address        = (uintptr_t)instance->first;
-    uintptr_t address_offset = (uintptr_t)pos * type->size;
-    uintptr_t new_address    = address + address_offset;
-
-    if (new_address >= (uintptr_t)instance->last) {
+    if (!CSTL_vector_checked_mul(&pos_bytes, type_size, pos)) {
         return NULL;
     }
 
-    return (void*)new_address;
+    char* pos_at = (char*)instance->first + pos_bytes;
+
+    if (pos_at >= instance->last) {
+        return NULL;
+    }
+
+    return pos_at;
 }
 
-const void* CSTL_vector_const_at(CSTL_VectorCtx context, size_t pos) {
-    return (const void*)CSTL_vector_at(context, pos);
+const void* CSTL_vector_const_at(CSTL_VectorCRef instance, CSTL_Type type, size_t pos) {
+    return CSTL_vector_at((CSTL_VectorRef)instance, type, pos);
 }
 
-void* CSTL_vector_front(CSTL_VectorCtx context) {
-    assert(!CSTL_vector_empty(context));
-    return context.instance->first;
+void* CSTL_vector_front(CSTL_VectorRef instance) {
+    assert(!CSTL_vector_empty(instance));
+    return instance->first;
 }
 
-const void* CSTL_vector_const_front(CSTL_VectorCtx context)  {
-    assert(!CSTL_vector_empty(context));
-    return context.instance->first;
+const void* CSTL_vector_const_front(CSTL_VectorCRef instance) {
+    return CSTL_vector_front((CSTL_VectorRef)instance);
 }
 
-void* CSTL_vector_back(CSTL_VectorCtx context)  {
-    assert(!CSTL_vector_empty(context));
-    return CSTL_pointer_sub(context.instance->last, 1, context.type);
+void* CSTL_vector_back(CSTL_VectorRef instance, CSTL_Type type) {
+    assert(!CSTL_vector_empty(instance));
+    return (char*)instance->last - CSTL_sizeof_type(type);
 }
 
-const void* CSTL_vector_const_back(CSTL_VectorCtx context) {
-    assert(!CSTL_vector_empty(context));
-    return CSTL_pointer_sub(context.instance->last, 1, context.type);
+const void* CSTL_vector_const_back(CSTL_VectorCRef instance, CSTL_Type type) {
+    return CSTL_vector_back((CSTL_VectorRef)instance, type);
 }
 
-void* CSTL_vector_data(CSTL_VectorCtx context) {
-    return context.instance->first;
+void* CSTL_vector_data(CSTL_VectorRef instance) {
+    return instance->first;
 }
 
-const void* CSTL_vector_const_data(CSTL_VectorCtx context) {
-    return context.instance->first;
+const void* CSTL_vector_const_data(CSTL_VectorCRef instance) {
+    return instance->first;
 }
 
-CSTL_VectorIter CSTL_vector_begin(CSTL_VectorCtx context) {
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
+CSTL_VectorIter CSTL_vector_begin(CSTL_VectorCRef instance, CSTL_Type type) {
+    CSTL_VectorIter iterator = {
+        .pointer = instance->first,
+        .size = CSTL_sizeof_type(type),
+    };
 
-    return ndbg_vector_begin(context);
+    CSTL_set_iterator_owner(&iterator, instance);
+
+    return iterator;
 }
 
-CSTL_VectorIter CSTL_vector_end(CSTL_VectorCtx context) {
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
+CSTL_VectorIter CSTL_vector_end(CSTL_VectorCRef instance, CSTL_Type type) {
+    CSTL_VectorIter iterator = {
+        .pointer = instance->last,
+        .size = CSTL_sizeof_type(type),
+    };
 
-    return ndbg_vector_end(context);
+    CSTL_set_iterator_owner(&iterator, instance);
+
+    return iterator;
 }
 
 CSTL_VectorIter CSTL_vector_iterator_add(CSTL_VectorIter iterator, ptrdiff_t n) {
     assert(iterator.pointer != NULL);
     CSTL_verify_iterator(&iterator);
-    CSTL_VectorIter tmp = ndbg_vector_iterator_add(iterator, n);
+
+    const void* new_pointer = (const char*)iterator.pointer
+        + n * (ptrdiff_t)iterator.size;
+
+    CSTL_VectorIter tmp = {
+        .pointer = new_pointer,
+        .size = iterator.size,
+    };
+
+    CSTL_set_iterator_owner(&tmp, iterator.owner);
     CSTL_verify_iterator(&tmp);
+
     return tmp;
 }
 
@@ -499,628 +494,577 @@ CSTL_VectorIter CSTL_vector_iterator_sub(CSTL_VectorIter iterator, ptrdiff_t n) 
 void* CSTL_vector_iterator_deref(CSTL_VectorIter iterator) {
     assert(iterator.pointer != NULL);
     CSTL_verify_iterator(&iterator);
-    return ndbg_vector_iterator_deref(iterator);
+    return (void*)iterator.pointer;
 }
 
 void* CSTL_vector_iterator_index(CSTL_VectorIter iterator, ptrdiff_t n) {
     assert(iterator.pointer != NULL);
     CSTL_verify_iterator(&iterator);
-    return ndbg_vector_iterator_index(iterator, n);
+
+    const void* new_pointer = (const char*)iterator.pointer
+        + n * (ptrdiff_t)iterator.size;
+
+    return (void*)new_pointer;
 }
 
 ptrdiff_t CSTL_vector_iterator_distance(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
     CSTL_verify_iterator(&lhs);
     CSTL_verify_iterator(&rhs);
     assert(lhs.owner == rhs.owner);
-    return ndbg_vector_iterator_distance(lhs, rhs);
+    return ((const char*)rhs.pointer - lhs.pointer) / (ptrdiff_t)lhs.size;
 }
 
 bool CSTL_vector_iterator_eq(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
     CSTL_verify_iterator(&lhs);
     CSTL_verify_iterator(&rhs);
     assert(lhs.owner == rhs.owner);
-    return ndbg_vector_iterator_eq(lhs, rhs);
+    return lhs.pointer == rhs.pointer;
 }
 
 bool CSTL_vector_iterator_lt(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
     CSTL_verify_iterator(&lhs);
     CSTL_verify_iterator(&rhs);
     assert(lhs.owner == rhs.owner);
-    return ndbg_vector_iterator_lt(lhs, rhs);
+    return (const char*)lhs.pointer < rhs.pointer;
 }
 
-bool CSTL_vector_empty(CSTL_VectorCtx context) {
-    return context.instance->first == context.instance->last;
+bool CSTL_vector_empty(CSTL_VectorCRef instance) {
+    return instance->first == instance->last;
 }
 
-size_t CSTL_vector_size(CSTL_VectorCtx context) {
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    return ndbg_vector_size(context);
+size_t CSTL_vector_size(CSTL_VectorCRef instance, CSTL_Type type) {
+    return CSTL_vector_size_bytes(instance) / CSTL_sizeof_type(type);
 }
 
-size_t CSTL_vector_capacity(CSTL_VectorCtx context) {
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    return ndbg_vector_capacity(context);
+size_t CSTL_vector_capacity(CSTL_VectorCRef instance, CSTL_Type type) {
+    return CSTL_vector_capacity_bytes(instance) / CSTL_sizeof_type(type);
 }
 
-size_t CSTL_vector_max_size(CSTL_TypeCRef type) {
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    return ndbg_vector_max_size(type);
+size_t CSTL_vector_max_size(CSTL_Type type) {
+    return (size_t)(PTRDIFF_MAX - 1) / CSTL_sizeof_type(type);
 }
 
-void CSTL_vector_reallocate(CSTL_VectorCtx context, size_t new_capacity, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
+bool CSTL_vector_resize(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, size_t new_size, const void* value, CSTL_Alloc* alloc) {
+    size_t alignment = CSTL_alignof_type(type);
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t new_bytes = 0;
 
-    CSTL_VectorVal tmp = CSTL_vector_new_with_capacity(new_capacity, context.type, alloc);
-
-    size_t size = ndbg_vector_size(context);
-    
-    if (context.type->use_move_from) {
-        tmp.last = CSTL_uninitialized_move_n(instance->first, size, tmp.first, type);
-    } else {
-        tmp.last = CSTL_uninitialized_copy_n(instance->first, size, tmp.first, type);
+    if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_size)) {
+        return false;
     }
 
-    CSTL_vector_replace(context, alloc, tmp);
-}
+    size_t old_bytes = CSTL_vector_size_bytes(instance);
 
-bool CSTL_vector_reserve(CSTL_VectorCtx context, size_t new_capacity, CSTL_Alloc* alloc) {
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
+    if (new_bytes == old_bytes) {
+        return true;
+    }
 
-    // increase capacity to new_capacity (without geometric growth)
-    if (new_capacity > ndbg_vector_capacity(context)) { // something to do (reserve() never shrinks)
-        if (new_capacity > ndbg_vector_max_size(context.type)) {
-            return false;
+    void* old_last = instance->last;
+    void* new_last = (char*)instance->first + new_bytes;
+
+    if (new_bytes > old_bytes) {
+        if (new_bytes > CSTL_vector_capacity_bytes(instance)) {
+            size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
+            CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_capacity, alignment, alloc);
+
+            if (tmp.first == NULL) {
+                return false;
+            }
+
+            old_last = (char*)tmp.first + old_bytes;
+            new_last = (char*)tmp.first + new_bytes;
+
+            copy->copy(instance->first, instance->last, tmp.first);
+
+            CSTL_vector_replace(instance, alignment, &copy->move_type.drop_type, alloc, tmp);
         }
 
-        CSTL_vector_reallocate(context, new_capacity, alloc);
+        copy->fill(old_last, new_last, value);
+    } else {
+        copy->move_type.drop_type.drop(new_last, old_last);
+    }
+
+    instance->last = new_last;
+        
+    return true;
+}
+
+void CSTL_vector_truncate(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop, size_t new_size) {
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t new_bytes = 0;
+
+    if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_size)) {
+        return;
+    }
+
+    size_t old_bytes = CSTL_vector_size_bytes(instance);
+
+    if (new_bytes >= old_bytes) {
+        return;
+    }
+
+    void* old_last = instance->last;
+    void* new_last = (char*)instance->first + new_bytes;
+    instance->last = new_last;
+
+    drop->drop(new_last, old_last);
+}
+
+bool CSTL_vector_reserve(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, size_t new_capacity, CSTL_Alloc* alloc) {
+    // increase capacity to new_capacity (without geometric growth)
+    size_t alignment = CSTL_alignof_type(type);
+    size_t type_size = CSTL_sizeof_type(type);
+    size_t new_bytes = 0;
+
+    if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_capacity)) {
+        return false;
+    }
+
+    if (new_bytes > CSTL_vector_capacity_bytes(instance)) { // something to do (reserve() never shrinks)
+        return CSTL_vector_reallocate_bytes(instance, alignment, move, new_bytes, alloc, alloc);
     }
 
     return true;
 }
 
-void CSTL_vector_shrink_to_fit(CSTL_VectorCtx context, CSTL_Alloc* alloc) { // reduce capacity to size
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
+bool CSTL_vector_shrink_to_fit(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, CSTL_Alloc* alloc) {
+    size_t alignment = CSTL_alignof_type(type);
 
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
+    void* old_last = instance->last;
 
-    const void* old_last = instance->last;
     if (old_last != instance->end) { // something to do
-        const void* old_first = instance->first;
+        void* old_first = instance->first;
+
         if (old_first == old_last) {
-            CSTL_vector_tidy(context, alloc);
+            CSTL_vector_tidy(instance, alignment, &move->drop_type, alloc);
         } else {
-            size_t new_capacity = ndbg_vector_size(context);
-            CSTL_vector_reallocate(context, new_capacity, alloc);
+            size_t new_capacity = CSTL_vector_size_bytes(instance);
+
+            return CSTL_vector_reallocate_bytes(instance, alignment, move, new_capacity, alloc, alloc);
         }
     }
+
+    return true;
 }
 
-void CSTL_vector_clear(CSTL_VectorCtx context) { // erase all
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-
-    void* first = (void*)instance->first;
-    void* last  = (void*)instance->last;
+void CSTL_vector_clear(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop) {
+    void* first = instance->first;
+    void* last  = instance->last;
 
     if (first == last) {
         return;
     }
-
-    size_t size = ndbg_vector_size(context);
-    CSTL_destroy_n(first, size, type);
+    
+    drop->drop(first, last);
 
     instance->last = first;
 }
 
-CSTL_VectorIter CSTL_vector_insert(CSTL_VectorCtx context, CSTL_VectorIter where, size_t count, const void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
+CSTL_VectorIter CSTL_vector_insert_n(CSTL_VectorRef instance, CSTL_CopyTypeCRef copy, CSTL_VectorIter where, size_t count, const void* value, CSTL_Alloc* alloc) {
     CSTL_verify_iterator(&where);
-    assert(where.owner == context.instance);
+    assert(where.owner == instance);
 
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
+    if (count == 0) {
+        return where;
+    }
 
-    void* where_pointer    = (void*)where.pointer;
-    ptrdiff_t where_off    = CSTL_pointer_distance(instance->first, where_pointer, type);
-    size_t unused_capacity = CSTL_pointer_distance(instance->end, instance->last, type);
+    size_t type_size = where.size;
+    size_t alignment = type_size & -type_size;
+    size_t new_bytes = 0;
 
-    if (count == 0) { // nothing to do, avoid invalidating iterators
-    } else if (count > unused_capacity) {
-        size_t old_size = CSTL_vector_size(context);
+    if (!CSTL_vector_checked_mul(&new_bytes, type_size, count)) {
+        where.pointer = instance->last;
+        return where;
+    }
 
-        if (count > CSTL_vector_max_size(type) - old_size) {
-            return ndbg_vector_end(context);
+    void* where_pointer = (void*)where.pointer;
+
+    size_t where_bytes  = (size_t)((char*)where_pointer - instance->first);
+    size_t unused_bytes = (size_t)((char*)instance->end - instance->last);
+
+    if (new_bytes > unused_bytes) {
+        size_t old_bytes = CSTL_vector_size_bytes(instance);
+
+        if (new_bytes > CSTL_vector_bytes_max(type_size) - old_bytes) {
+            where.pointer = instance->last;
+            return where;
         }
 
-        size_t new_size     = old_size + count;
-        size_t new_capacity = CSTL_vector_calculate_growth(context, new_size);
+        size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, old_bytes + new_bytes);
 
-        CSTL_VectorVal tmp = CSTL_vector_new_with_capacity(new_capacity, type, alloc);
-        tmp.last = CSTL_pointer_add(tmp.first, (ptrdiff_t)new_size, type);
+        CSTL_VectorVal tmp = CSTL_vector_new_with_bytes(new_capacity, alignment, alloc);
 
-        void* constructed_first = CSTL_pointer_add(tmp.first, where_off, type);
-        void* constructed_last  = CSTL_pointer_add(constructed_first, (ptrdiff_t)count, type);
+        if (tmp.first == NULL) {
+            where.pointer = instance->last;
+            return where;
+        }
 
-        CSTL_uninitialized_fill_n(constructed_first, count, value, type);
+        tmp.last = (char*)tmp.first + old_bytes + new_bytes;
+
+        void* constructed_first = (char*)tmp.first + where_bytes;
+        void* constructed_last  = (char*)constructed_first + new_bytes;
+
+        copy->fill(constructed_first, constructed_last, value);
     
-        if (where_pointer == instance->last) {
-            if (type->use_move_from) {
-                CSTL_uninitialized_move_n(instance->first, old_size, tmp.first, type);
-            } else {
-                CSTL_uninitialized_copy_n(instance->first, old_size, tmp.first, type);
-            }
-        } else {
-            if (type->use_move_from) {
-                CSTL_uninitialized_move_n(instance->first, (size_t)where_off, tmp.first, type);
-                CSTL_uninitialized_move_n(where_pointer, old_size - (size_t)where_off, constructed_last, type);
-            } else {
-                CSTL_uninitialized_copy_n(instance->first, (size_t)where_off, tmp.first, type);
-                CSTL_uninitialized_copy_n(where_pointer, old_size - (size_t)where_off, constructed_last, type);
-            }
+        if (where_pointer != instance->last) {
+            copy->move_type.move(where_pointer, instance->last, constructed_last);
         }
 
-        CSTL_vector_replace(context, alloc, tmp);
+        copy->move_type.move(instance->first, where_pointer, tmp.first);
+
+        CSTL_vector_replace(instance, alignment, &copy->move_type.drop_type, alloc, tmp);
 
         where_pointer = constructed_first;
     } else {
-        void* old_last = (void*)instance->last;
+        void* old_last    = instance->last;
+        void* where_last  = (char*)where_pointer + new_bytes;
 
-        size_t affected_elements = (size_t)CSTL_pointer_distance(where_pointer, old_last, type);
+        size_t affected_bytes = (size_t)((char*)instance->last - where_pointer);
 
-        if (count > affected_elements) {
-            instance->last = CSTL_uninitialized_fill_n(old_last, count - affected_elements, value, type);
+        if (new_bytes > affected_bytes) {
+            void* new_mid  = (char*)old_last + new_bytes - affected_bytes;
 
-            if (type->use_move_from) {
-                instance->last = CSTL_uninitialized_move_n(where_pointer, affected_elements, instance->last, type);
-            } else {
-                instance->last = CSTL_uninitialized_copy_n(where_pointer, affected_elements, instance->last, type);
-            }
-
-            CSTL_fill_n(where_pointer, affected_elements, value, type);
+            copy->move_type.move(where_pointer, old_last, new_mid);
+            copy->move_type.drop_type.drop(where_pointer, old_last);
         } else {
-            void* new_mid = CSTL_pointer_sub(instance->last, count, type);
+            void* new_mid  = (char*)old_last - new_bytes;
 
-            if (type->use_move_from) {
-                instance->last = CSTL_uninitialized_move_n(new_mid, count, old_last, type);
-                CSTL_move_backwards(where_pointer, new_mid, old_last, type);
-            } else {
-                instance->last = CSTL_uninitialized_copy_n(new_mid, count, old_last, type);
-                CSTL_copy_backwards(where_pointer, new_mid, old_last, type);
-            }
-
-            CSTL_fill_n(where_pointer, count, value, type);
+            copy->move_type.move(new_mid, old_last, old_last);
+            CSTL_vector_sized_move_backwards(type_size, &copy->move_type, where_pointer, new_mid, old_last);
+            copy->move_type.drop_type.drop(where_pointer, where_last);
         }
+
+        copy->fill(where_pointer, where_last, value);
+        instance->last = (char*)old_last + new_bytes;
     }
 
-    return ndbg_make_iterator(context, where_pointer);
+    where.pointer = where_pointer;
+    return where;
 }
 
-void* CSTL_vector_move_back_with_unused_capacity(CSTL_VectorCtx context, void* value) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
+void* CSTL_vector_copy_insert_reallocate(CSTL_VectorRef instance, CSTL_CopyTypeCRef copy, size_t type_size, void* where, const void* value, CSTL_Alloc* alloc) {
+    size_t fake_alignment = type_size & -type_size;
 
-    void* last = instance->last;
-    instance->last = CSTL_pointer_add(last, 1, type);
-    if (type->use_move_from) {
-        CSTL_type_move_from(last, value, type);
-    } else {
-        CSTL_type_copy_from(last, value, type);
-    }
-    return last;
-}
+    size_t where_bytes = (size_t)((char*)where - instance->first);
 
-void* CSTL_vector_move_emplace_reallocate(CSTL_VectorCtx context, void* where_pointer, void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
+    size_t old_bytes = CSTL_vector_size_bytes(instance);
+    size_t new_bytes = CSTL_vector_growth_bytes(instance, type_size, old_bytes + type_size);
 
-    ptrdiff_t where_off = CSTL_pointer_distance(instance->first, where_pointer, type);
-    size_t old_size  = ndbg_vector_size(context);
+    CSTL_VectorVal tmp = CSTL_vector_new_with_bytes(new_bytes, fake_alignment, alloc);
 
-    if (old_size == ndbg_vector_max_size(type)) {
+    if (tmp.first == NULL) {
         return instance->last;
     }
 
-    size_t new_size     = old_size + 1;
-    size_t new_capacity = CSTL_vector_calculate_growth(context, new_size);
+    tmp.last = (char*)tmp.first + old_bytes + type_size;
 
-    CSTL_VectorVal tmp = CSTL_vector_new_with_capacity(new_capacity, type, alloc);
-    tmp.last = CSTL_pointer_add(tmp.first, (ptrdiff_t)new_size, type);
+    void* constructed_first = (char*)tmp.first + where_bytes;
+    void* constructed_last  = (char*)constructed_first + type_size;
 
-    void* constructed_first = CSTL_pointer_add(tmp.first, where_off, type);
-    void* constructed_last  = CSTL_pointer_add(constructed_first, 1, type);
+    copy->copy(value, (const char*)value + type_size, constructed_first);
 
-    if (type->use_move_from) {
-        CSTL_type_move_from(constructed_first, value, type);
-    } else {
-        CSTL_type_copy_from(constructed_first, value, type);
+    if (where != instance->last) {
+        copy->move_type.move(where, instance->last, constructed_last);
     }
 
-    void* old_first = (void*)instance->last;
-    void* old_mid   = CSTL_pointer_add(old_first, where_off, type);
+    copy->move_type.move(instance->first, where, tmp.first);
 
-    if (where_pointer == instance->last) {
-        if (type->use_move_from) {
-            CSTL_uninitialized_move_n(old_first, old_size, tmp.first, type);
-        } else {
-            CSTL_uninitialized_copy_n(old_first, old_size, tmp.first, type);
-        }
-    } else {
-        if (type->use_move_from) {
-            CSTL_uninitialized_move_n(old_first, (size_t)where_off, tmp.first, type);
-            CSTL_uninitialized_move_n(old_mid, old_size - (size_t)where_off, constructed_last, type);
-        } else {
-            CSTL_uninitialized_copy_n(old_first, (size_t)where_off, tmp.first, type);
-            CSTL_uninitialized_copy_n(old_mid, old_size - (size_t)where_off, constructed_last, type);
-        }
-    }
-
-    CSTL_vector_replace(context, alloc, tmp);
+    CSTL_vector_replace(instance, fake_alignment, &copy->move_type.drop_type, alloc, tmp);
 
     return constructed_first;
 }
 
-CSTL_VectorIter CSTL_vector_emplace(CSTL_VectorCtx context, CSTL_VectorIter where, void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
+void* CSTL_vector_move_insert_reallocate(CSTL_VectorRef instance, CSTL_MoveTypeCRef move, size_t type_size, void* where, void* value, CSTL_Alloc* alloc) {
+    size_t fake_alignment = type_size & -type_size;
 
+    size_t where_bytes = (size_t)((char*)where - instance->first);
+
+    size_t old_bytes = CSTL_vector_size_bytes(instance);
+    size_t new_bytes = CSTL_vector_growth_bytes(instance, type_size, old_bytes + type_size);
+
+    CSTL_VectorVal tmp = CSTL_vector_new_with_bytes(new_bytes, fake_alignment, alloc);
+
+    if (tmp.first == NULL) {
+        return instance->last;
+    }
+
+    tmp.last = (char*)tmp.first + old_bytes + type_size;
+
+    void* constructed_first = (char*)tmp.first + where_bytes;
+    void* constructed_last  = (char*)constructed_first + type_size;
+
+    move->move(value, (char*)value + type_size, constructed_first);
+
+    if (where != instance->last) {
+        move->move(where, instance->last, constructed_last);
+    }
+
+    move->move(instance->first, where, tmp.first);
+
+    CSTL_vector_replace(instance, fake_alignment, &move->drop_type, alloc, tmp);
+
+    return constructed_first;
+}
+
+CSTL_VectorIter CSTL_vector_copy_insert(CSTL_VectorRef instance, CSTL_CopyTypeCRef copy, CSTL_VectorIter where, const void* value, CSTL_Alloc* alloc) {
     CSTL_verify_iterator(&where);
-    assert(where.owner == context.instance);
+    assert(where.owner == instance);
 
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
+    size_t type_size = where.size;
 
     void* where_pointer = (void*)where.pointer;
     void* old_last      = instance->last;
 
-    if (old_last != instance->end) {
-        if (where_pointer == old_last) {
-            CSTL_vector_move_back_with_unused_capacity(context, value);
-        } else {
-            CSTL_SmallAllocFrame frame;
-            if (type->use_move_from) {
-                void* tmp = CSTL_type_small_alloc(&frame, 1, type, alloc);
-                CSTL_type_move_from(tmp, value, type); // handle aliasing
-                value = tmp;
-            }
-
-            instance->last = CSTL_pointer_add(old_last, 1, type);
-            void* old_back = CSTL_pointer_sub(old_last, 1, type);
-
-            if (type->use_move_from) {
-                CSTL_type_move_from(old_last, old_back, type);
-                CSTL_move_backwards(where_pointer, old_back, old_last, type);
-                CSTL_type_move_from(where_pointer, value, type);
-            } else {
-                CSTL_type_copy_from(old_last, old_back, type);
-                CSTL_copy_backwards(where_pointer, old_back, old_last, type);
-                CSTL_type_copy_from(where_pointer, value, type);
-            }
-
-            if (type->use_move_from) {
-                CSTL_type_destroy_at(value, type);
-                CSTL_type_small_free(&frame, 1, type, alloc);
-            }
-        }
-    } else {
-        where_pointer = CSTL_vector_move_emplace_reallocate(context, where_pointer, value, alloc);
+    if (CSTL_vector_size_bytes(instance) >= CSTL_vector_bytes_max(type_size)) {
+        where.pointer = old_last;
+        return where;
     }
-
-    return ndbg_make_iterator(context, where_pointer);
-}
-
-void* CSTL_vector_copy_back_with_unused_capacity(CSTL_VectorCtx context, const void* value) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    void* last = instance->last;
-    instance->last = CSTL_pointer_add(last, 1, type);
-    CSTL_type_copy_from(last, value, type);
-    return last;
-}
-
-void* CSTL_vector_copy_emplace_reallocate(CSTL_VectorCtx context, void* where_pointer, const void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    ptrdiff_t where_off = CSTL_pointer_distance(instance->first, where_pointer, type);
-    size_t old_size  = ndbg_vector_size(context);
-
-    if (old_size == ndbg_vector_max_size(type)) {
-        return instance->last;
-    }
-
-    size_t new_size     = old_size + 1;
-    size_t new_capacity = CSTL_vector_calculate_growth(context, new_size);
-
-    CSTL_VectorVal tmp = CSTL_vector_new_with_capacity(new_capacity, type, alloc);
-    tmp.last = CSTL_pointer_add(tmp.first, (ptrdiff_t)new_size, type);
-
-    void* constructed_first = CSTL_pointer_add(tmp.first, where_off, type);
-    void* constructed_last  = CSTL_pointer_add(constructed_first, 1, type);
-
-    CSTL_type_copy_from(constructed_first, value, type);
-
-    void* old_first = (void*)instance->first;
-    void* old_mid   = CSTL_pointer_add(old_first, where_off, type);
-
-    if (where_pointer == instance->last) {
-        if (type->use_move_from) {
-            CSTL_uninitialized_move_n(old_first, old_size, tmp.first, type);
-        } else {
-            CSTL_uninitialized_copy_n(old_first, old_size, tmp.first, type);
-        }
-    } else {
-        if (type->use_move_from) {
-            CSTL_uninitialized_move_n(old_first, (size_t)where_off, tmp.first, type);
-            CSTL_uninitialized_move_n(old_mid, old_size - (size_t)where_off, constructed_last, type);
-        } else {
-            CSTL_uninitialized_copy_n(old_first, (size_t)where_off, tmp.first, type);
-            CSTL_uninitialized_copy_n(old_mid, old_size - (size_t)where_off, constructed_last, type);
-        }
-    }
-
-    CSTL_vector_replace(context, alloc, tmp);
-
-    return constructed_first;
-}
-
-CSTL_VectorIter CSTL_vector_emplace_const(CSTL_VectorCtx context, CSTL_VectorIter where, const void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    CSTL_verify_iterator(&where);
-    assert(where.owner == context.instance);
-
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-
-    void* where_pointer = (void*)where.pointer;
-    void* old_last      = (void*)instance->last;
 
     if (old_last != instance->end) {
-        if (where_pointer == old_last) {
-            CSTL_vector_copy_back_with_unused_capacity(context, value);
-        } else {
-            instance->last = CSTL_pointer_add(old_last, 1, type);
-            void* old_back = CSTL_pointer_sub(old_last, 1, type);
+        instance->last = (char*)old_last + type_size;
 
-            if (type->use_move_from) {
-                CSTL_type_move_from(old_last, old_back, type);
-                CSTL_move_backwards(where_pointer, old_back, old_last, type);
-                CSTL_type_copy_from(where_pointer, value, type);
-            } else {
-                CSTL_type_copy_from(old_last, old_back, type);
-                CSTL_copy_backwards(where_pointer, old_back, old_last, type);
-                CSTL_type_copy_from(where_pointer, value, type);
-            }
+        if (where_pointer != old_last) {
+            void* old_back = (char*)old_last - type_size;
+
+            CSTL_vector_sized_move_backwards(type_size, &copy->move_type, where_pointer, old_last, old_last);
+            copy->move_type.drop_type.drop(where_pointer, (char*)where_pointer + type_size);
         }
+
+        copy->copy(value, (const char*)value + type_size, where_pointer);
     } else {
-        where_pointer = CSTL_vector_copy_emplace_reallocate(context, where_pointer, value, alloc);
+        where.pointer = CSTL_vector_copy_insert_reallocate(instance, copy, type_size, where_pointer, value, alloc);
     }
-
-    return ndbg_make_iterator(context, where_pointer);
-}
-
-CSTL_VectorIter CSTL_vector_erase(CSTL_VectorCtx context, CSTL_VectorIter where) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-
-    void* where_pointer = (void*)where.pointer;
-
-    void* first = CSTL_pointer_add(where_pointer, 1, type);
-    void* last  = (void*)instance->last;
-
-    if (type->use_move_from) {
-        CSTL_move(first, last, where_pointer, type);
-    } else {
-        CSTL_copy(first, last, where_pointer, type);
-    }
-
-    instance->last = CSTL_pointer_sub(instance->last, 1, type);
-    CSTL_type_destroy_at(instance->last, type);
 
     return where;
 }
 
-CSTL_VectorIter CSTL_vector_erase_range(CSTL_VectorCtx context, CSTL_VectorIter first, CSTL_VectorIter last) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
+CSTL_VectorIter CSTL_vector_move_insert(CSTL_VectorRef instance, CSTL_MoveTypeCRef move, CSTL_VectorIter where, void* value, CSTL_Alloc* alloc) {
+    CSTL_verify_iterator(&where);
+    assert(where.owner == instance);
 
-    CSTL_verify_iterator(&first);
-    CSTL_verify_iterator(&last);
-    assert(first.owner == context.instance && first.owner == last.owner);
+    size_t type_size = where.size;
 
-    assert((context.type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
+    void* where_pointer = (void*)where.pointer;
+    void* old_last      = instance->last;
 
-    if (!CSTL_vector_iterator_eq(first, last)) { // something to do
-        void* old_last = (void*)instance->last;
+    if (CSTL_vector_size_bytes(instance) >= CSTL_vector_bytes_max(type_size)) {
+        where.pointer = old_last;
+        return where;
+    }
 
-        if (type->use_move_from) {
-            instance->last = CSTL_move((void*)last.pointer, old_last, (void*)first.pointer, type);
-        } else {
-            instance->last = CSTL_copy((void*)last.pointer, old_last, (void*)first.pointer, type);
+    if (old_last != instance->end) {
+        instance->last = (char*)old_last + type_size;
+
+        if (where_pointer != old_last) {
+            void* old_back = (char*)old_last - type_size;
+
+            move->move(old_back, old_last, old_last);
+            CSTL_vector_sized_move_backwards(type_size, move, where_pointer, old_back, old_last);
+            move->drop_type.drop(where_pointer, (char*)where_pointer + type_size);
         }
 
-        CSTL_destroy((void*)instance->last, old_last, type);
+        move->move(value, (char*)value + type_size, where_pointer);
+    } else {
+        where.pointer = CSTL_vector_move_insert_reallocate(instance, move, type_size, where_pointer, value, alloc);
+    }
+
+    return where;
+}
+
+CSTL_VectorIter CSTL_vector_copy_insert_range(CSTL_VectorRef instance, CSTL_CopyTypeCRef copy, CSTL_VectorIter where, const void* range_first, const void* range_last, CSTL_Alloc* alloc) {
+    CSTL_verify_iterator(&where);
+    assert(where.owner == instance);
+
+    if (range_first == range_last) {
+        return where;
+    }
+
+    size_t type_size = where.size;
+    size_t alignment = type_size & -type_size;
+    size_t new_bytes = (size_t)((char*)range_last - range_first);
+
+    void* where_pointer = (void*)where.pointer;
+
+    size_t where_bytes  = (size_t)((char*)where_pointer - instance->first);
+    size_t unused_bytes = (size_t)((char*)instance->end - instance->last);
+
+    if (new_bytes > unused_bytes) {
+        size_t old_bytes = CSTL_vector_size_bytes(instance);
+
+        if (new_bytes > CSTL_vector_bytes_max(type_size) - old_bytes) {
+            where.pointer = instance->last;
+            return where;
+        }
+
+        size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, old_bytes + new_bytes);
+
+        CSTL_VectorVal tmp = CSTL_vector_new_with_bytes(new_capacity, alignment, alloc);
+
+        if (tmp.first == NULL) {
+            where.pointer = instance->last;
+            return where;
+        }
+
+        tmp.last = (char*)tmp.first + old_bytes + new_bytes;
+
+        void* constructed_first = (char*)tmp.first + where_bytes;
+        void* constructed_last  = (char*)constructed_first + new_bytes;
+
+        copy->copy(range_first, range_last, constructed_first);
+    
+        if (where_pointer != instance->last) {
+            copy->move_type.move(where_pointer, instance->last, constructed_last);
+        }
+
+        copy->move_type.move(instance->first, where_pointer, tmp.first);
+
+        CSTL_vector_replace(instance, alignment, &copy->move_type.drop_type, alloc, tmp);
+
+        where_pointer = constructed_first;
+    } else {
+        void* old_last = instance->last;
+
+        size_t affected_bytes = (size_t)((char*)instance->last - where_pointer);
+
+        if (new_bytes > affected_bytes) {
+            void* new_mid  = (char*)old_last + new_bytes - affected_bytes;
+
+            copy->move_type.move(where_pointer, old_last, new_mid);
+            copy->move_type.drop_type.drop(where_pointer, old_last);
+        } else {
+            void* new_mid  = (char*)old_last - new_bytes;
+
+            copy->move_type.move(new_mid, old_last, old_last);
+            CSTL_vector_sized_move_backwards(type_size, &copy->move_type, where_pointer, new_mid, old_last);
+            copy->move_type.drop_type.drop(where_pointer, (char*)where_pointer + new_bytes);
+        }
+
+        copy->copy(range_first, range_last, where_pointer);
+        instance->last = (char*)old_last + new_bytes;
+    }
+
+    where.pointer = where_pointer;
+    return where;
+}
+
+CSTL_VectorIter CSTL_vector_move_insert_range(CSTL_VectorRef instance, CSTL_MoveTypeCRef move, CSTL_VectorIter where, void* range_first, void* range_last, CSTL_Alloc* alloc) {
+    CSTL_verify_iterator(&where);
+    assert(where.owner == instance);
+
+    if (range_first == range_last) {
+        return where;
+    }
+
+    size_t type_size = where.size;
+    size_t alignment = type_size & -type_size;
+    size_t new_bytes = (size_t)((char*)range_last - range_first);
+
+    void* where_pointer = (void*)where.pointer;
+
+    size_t where_bytes  = (size_t)((char*)where_pointer - instance->first);
+    size_t unused_bytes = (size_t)((char*)instance->end - instance->last);
+
+    if (new_bytes > unused_bytes) {
+        size_t old_bytes = CSTL_vector_size_bytes(instance);
+
+        if (new_bytes > CSTL_vector_bytes_max(type_size) - old_bytes) {
+            where.pointer = instance->last;
+            return where;
+        }
+
+        size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, old_bytes + new_bytes);
+
+        CSTL_VectorVal tmp = CSTL_vector_new_with_bytes(new_capacity, alignment, alloc);
+
+        if (tmp.first == NULL) {
+            where.pointer = instance->last;
+            return where;
+        }
+
+        tmp.last = (char*)tmp.first + old_bytes + new_bytes;
+
+        void* constructed_first = (char*)tmp.first + where_bytes;
+        void* constructed_last  = (char*)constructed_first + new_bytes;
+
+        move->move(range_first, range_last, constructed_first);
+    
+        if (where_pointer != instance->last) {
+            move->move(where_pointer, instance->last, constructed_last);
+        }
+
+        move->move(instance->first, where_pointer, tmp.first);
+
+        CSTL_vector_replace(instance, alignment, &move->drop_type, alloc, tmp);
+
+        where_pointer = constructed_first;
+    } else {
+        void* old_last = instance->last;
+
+        size_t affected_bytes = (size_t)((char*)instance->last - where_pointer);
+
+        if (new_bytes > affected_bytes) {
+            void* new_mid  = (char*)old_last + new_bytes - affected_bytes;
+
+            move->move(where_pointer, old_last, new_mid);
+            move->drop_type.drop(where_pointer, old_last);
+        } else {
+            void* new_mid  = (char*)old_last - new_bytes;
+
+            move->move(new_mid, old_last, old_last);
+            CSTL_vector_sized_move_backwards(type_size, move, where_pointer, new_mid, old_last);
+            move->drop_type.drop(where_pointer, (char*)where_pointer + new_bytes);
+        }
+
+        move->move(range_first, range_last, where_pointer);
+        instance->last = (char*)old_last + new_bytes;
+    }
+
+    where.pointer = where_pointer;
+    return where;
+}
+
+bool CSTL_vector_copy_push_back(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, const void* value, CSTL_Alloc* alloc) {
+    CSTL_VectorIter inserted = CSTL_vector_copy_insert(instance, copy,
+        CSTL_vector_end(instance, type), value, alloc);
+    return inserted.pointer != instance->last;
+}
+
+bool CSTL_vector_move_push_back(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, void* value, CSTL_Alloc* alloc) {
+    CSTL_VectorIter inserted = CSTL_vector_move_insert(instance, move,
+        CSTL_vector_end(instance, type), value, alloc);
+    return inserted.pointer != instance->last;
+}
+
+void CSTL_vector_pop_back(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop) {
+    void* new_last = CSTL_vector_back(instance, type);
+    void* old_last = instance->last;
+
+    drop->drop(new_last, old_last);
+
+    instance->last = new_last;
+}
+
+CSTL_VectorIter CSTL_vector_erase(CSTL_VectorRef instance, CSTL_MoveTypeCRef move, CSTL_VectorIter where) {
+    return CSTL_vector_erase_range(instance, move, where, CSTL_vector_iterator_add(where, 1));
+}
+
+CSTL_VectorIter CSTL_vector_erase_range(CSTL_VectorRef instance, CSTL_MoveTypeCRef move, CSTL_VectorIter first, CSTL_VectorIter last) {
+    CSTL_verify_iterator(&first);
+    CSTL_verify_iterator(&last);
+    assert(first.owner == instance && first.owner == last.owner);
+
+    if (first.pointer != last.pointer) { // something to do
+        void* new_last = CSTL_vector_sized_move(last.size, move, (void*)last.pointer,
+            instance->last, (void*)first.pointer);
+
+        move->drop_type.drop(new_last, instance->last);
+
+        instance->last = new_last;
     }
 
     return first;
 }
 
-CSTL_VectorIter CSTL_vector_emplace_back(CSTL_VectorCtx context, void* value, CSTL_Alloc* alloc) {
-    return CSTL_vector_emplace(context, ndbg_vector_end(context), value, alloc);
-}
-
-CSTL_VectorIter CSTL_vector_emplace_back_const(CSTL_VectorCtx context, const void* value, CSTL_Alloc* alloc) {
-    return CSTL_vector_emplace_const(context, ndbg_vector_end(context), value, alloc);
-}
-
-bool CSTL_vector_push_back(CSTL_VectorCtx context, void* value, CSTL_Alloc* alloc) {
-    return CSTL_vector_emplace_back(context, value, alloc).pointer != context.instance->last;
-}
-
-bool CSTL_vector_push_back_const(CSTL_VectorCtx context, const void* value, CSTL_Alloc* alloc) {
-    return CSTL_vector_emplace_back_const(context, value, alloc).pointer != context.instance->last;
-}
-
-void CSTL_vector_pop_back(CSTL_VectorCtx context) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-    assert(!CSTL_vector_empty(context));
-
-    instance->last = CSTL_vector_back(context);
-    CSTL_type_destroy_at(instance->last, type);
-}
-
-bool CSTL_vector_resize_reallocate(CSTL_VectorCtx context, size_t new_size, const void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    if (new_size > ndbg_vector_max_size(type)) {
-        return false;
-    }
-
-    size_t old_size     = ndbg_vector_size(context);
-    size_t new_capacity = CSTL_vector_calculate_growth(context, new_size);
-
-    CSTL_VectorVal tmp = CSTL_vector_new_with_capacity(new_capacity, type, alloc);
-
-    if (type->use_move_from) {
-        tmp.last = CSTL_uninitialized_move_n((void*)instance->first, old_size, tmp.first, type);
-    } else {
-        tmp.last = CSTL_uninitialized_copy_n((void*)instance->first, old_size, tmp.first, type);
-    }
-
-    tmp.last = CSTL_uninitialized_fill_n(tmp.last, new_size - old_size, value, type);
-
-    CSTL_vector_replace(context, alloc, tmp);
-
-    return true;
-}
-
-bool CSTL_vector_resize(CSTL_VectorCtx context, size_t new_size, const void* value, CSTL_Alloc* alloc) {
-    CSTL_VectorRef instance = (CSTL_VectorRef)context.instance;
-    CSTL_TypeCRef type      = (CSTL_TypeCRef)context.type;
-
-    assert((type->internal_flags & CSTL_TYPE_INVALID) == 0);
-    assert(CSTL_is_vector_aligned(context));
-
-    size_t old_size = ndbg_vector_size(context);
-    if (new_size < old_size) {
-        void* new_last = CSTL_pointer_add(instance->first, (ptrdiff_t)new_size, type);
-        CSTL_destroy_n(new_last, old_size - new_size, type);
-        instance->last = new_last;
-        
-        return true;
-    }
-
-    if (new_size > old_size) {
-        size_t old_capacity = ndbg_vector_capacity(context);
-
-        if (new_size > old_capacity) {
-            return CSTL_vector_resize_reallocate(context, new_size, value, alloc);
-        }
-
-        instance->last = CSTL_uninitialized_fill_n(instance->last,
-            new_size - old_size, value, type);
-    }
-        
-    return true;
-}
-
-size_t ndbg_vector_size(CSTL_VectorCtx context) {
-    uintptr_t first_address = (uintptr_t)context.instance->first;
-    uintptr_t last_address  = (uintptr_t)context.instance->last;
-
-    return CSTL_type_divide_by_rcp(last_address - first_address, context.type);
-}
-
-size_t ndbg_vector_capacity(CSTL_VectorCtx context) {
-    uintptr_t first_address = (uintptr_t)context.instance->first;
-    uintptr_t end_address   = (uintptr_t)context.instance->end;
-
-    return CSTL_type_divide_by_rcp(end_address - first_address, context.type);
-}
-
-size_t ndbg_vector_max_size(CSTL_TypeCRef type) {
-    return CSTL_type_divide_by_rcp((size_t)PTRDIFF_MAX, type);
-}
-
-CSTL_VectorIter ndbg_make_iterator(CSTL_VectorCtx context, const void* pointer) {
-    CSTL_VectorIter iterator = {
-        .pointer = pointer,
-        .type = context.type,
-    };
-
-    CSTL_set_iterator_owner(&iterator, context.instance);
-
-    return iterator;
-}
-
-CSTL_VectorIter ndbg_vector_begin(CSTL_VectorCtx context) {
-    CSTL_VectorIter iterator = {
-        .pointer = context.instance->first,
-        .type = context.type,
-    };
-
-    CSTL_set_iterator_owner(&iterator, context.instance);
-
-    return iterator;
-}
-
-CSTL_VectorIter ndbg_vector_end(CSTL_VectorCtx context) {
-    CSTL_VectorIter iterator = {
-        .pointer = context.instance->last,
-        .type = context.type,
-    };
-
-    CSTL_set_iterator_owner(&iterator, context.instance);
-
-    return iterator;
-}
-
-CSTL_VectorIter ndbg_vector_iterator_add(CSTL_VectorIter iterator, ptrdiff_t n) {
-    iterator.pointer = CSTL_pointer_add(iterator.pointer, n, iterator.type);
-    return iterator;
-}
-
-CSTL_VectorIter ndbg_vector_iterator_sub(CSTL_VectorIter iterator, ptrdiff_t n) {
-    return ndbg_vector_iterator_add(iterator, -n);
-}
-
-void* ndbg_vector_iterator_deref(CSTL_VectorIter iterator) {
-    return (void*)iterator.pointer;
-}
-
-void* ndbg_vector_iterator_index(CSTL_VectorIter iterator, ptrdiff_t n) {
-    CSTL_VectorIter tmp = ndbg_vector_iterator_add(iterator, n);
-    return (void*)tmp.pointer;
-}
-
-ptrdiff_t ndbg_vector_iterator_distance(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
-    return CSTL_pointer_distance(lhs.pointer, rhs.pointer, lhs.type);
-}
-
-bool ndbg_vector_iterator_eq(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
-    return lhs.pointer == rhs.pointer;
-}
-
-bool ndbg_vector_iterator_lt(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
-    return lhs.pointer < rhs.pointer;
-}
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
