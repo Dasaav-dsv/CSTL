@@ -219,7 +219,7 @@ bool CSTL_vector_assign_n(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyType
 
     if (new_bytes > (size_t)(end - first)) { // reallocate
         size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
-        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_bytes, alignment, alloc);
+        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_capacity, alignment, alloc);
 
         if (tmp.first == NULL) {
             return false;
@@ -269,11 +269,10 @@ bool CSTL_vector_copy_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL
 
     char* first = instance->first;
     char* last  = instance->last;
-    char* end   = instance->end;
 
     if (new_bytes > CSTL_vector_capacity_bytes(instance)) { // reallocate
         size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
-        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_bytes, alignment, alloc);
+        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_capacity, alignment, alloc);
 
         if (tmp.first == NULL) {
             return false;
@@ -325,11 +324,10 @@ bool CSTL_vector_move_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL
 
     char* first = instance->first;
     char* last  = instance->last;
-    char* end   = instance->end;
 
     if (new_bytes > CSTL_vector_capacity_bytes(instance)) { // reallocate
         size_t new_capacity = CSTL_vector_growth_bytes(instance, type_size, new_bytes);
-        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_bytes, alignment, alloc);
+        CSTL_VectorVal tmp  = CSTL_vector_new_with_bytes(new_capacity, alignment, alloc);
 
         if (tmp.first == NULL) {
             return false;
@@ -647,7 +645,7 @@ bool CSTL_vector_shrink_to_fit(CSTL_VectorRef instance, CSTL_Type type, CSTL_Mov
     return true;
 }
 
-void CSTL_vector_clear(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop) {
+void CSTL_vector_clear(CSTL_VectorRef instance, CSTL_DropTypeCRef drop) {
     void* first = instance->first;
     void* last  = instance->last;
 
@@ -824,8 +822,6 @@ CSTL_VectorIter CSTL_vector_copy_insert(CSTL_VectorRef instance, CSTL_CopyTypeCR
         instance->last = (char*)old_last + type_size;
 
         if (where_pointer != old_last) {
-            void* old_back = (char*)old_last - type_size;
-
             CSTL_vector_sized_move_backwards(type_size, &copy->move_type, where_pointer, old_last, old_last);
             copy->move_type.drop_type.drop(where_pointer, (char*)where_pointer + type_size);
         }

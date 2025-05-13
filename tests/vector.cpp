@@ -397,7 +397,7 @@ TEST_F(VectorTest, Clear) {
         << "must return true on success";
 
     real_vec.clear();
-    CSTL_vector_clear(&cstl_vec, type, &copy.move_type.drop_type);
+    CSTL_vector_clear(&cstl_vec, &copy.move_type.drop_type);
 
     vector_expect_size(0);
     vector_assert_equal();

@@ -385,7 +385,7 @@ bool CSTL_vector_shrink_to_fit(CSTL_VectorRef instance, CSTL_Type type, CSTL_Mov
  * Erase all elements from the vector without affecting capacity.
  * 
  */
-void CSTL_vector_clear(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop);
+void CSTL_vector_clear(CSTL_VectorRef instance, CSTL_DropTypeCRef drop);
 
 /**
  * Appends a copy of `value` to the end of the vector.
