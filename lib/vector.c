@@ -145,7 +145,7 @@ void CSTL_vector_construct(CSTL_VectorVal* new_instance) {
 }
 
 void CSTL_vector_destroy(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop, CSTL_Alloc* alloc) {
-    CSTL_vector_tidy(instance, CSTL_alignof_type(type), drop, alloc);
+    CSTL_vector_tidy(instance, CSTL_type_alignment(type), drop, alloc);
 }
 
 bool CSTL_vector_copy_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, CSTL_VectorCRef other_instance, CSTL_Alloc* alloc, CSTL_Alloc* other_alloc, bool propagate_alloc) {
@@ -157,7 +157,7 @@ bool CSTL_vector_copy_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyT
         if (alloc != other_alloc) {
             size_t new_bytes = (size_t)((char*)other_instance->last - (char*)other_instance->first);
 
-            if (!CSTL_vector_reallocate_bytes(instance, CSTL_alignof_type(type),
+            if (!CSTL_vector_reallocate_bytes(instance, CSTL_type_alignment(type),
                 &copy->move_type, new_bytes, alloc, other_alloc)) {
                 return false;
             }
@@ -170,7 +170,7 @@ bool CSTL_vector_copy_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyT
 }
 
 bool CSTL_vector_move_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, CSTL_VectorRef other_instance, CSTL_Alloc* alloc, CSTL_Alloc* other_alloc, bool propagate_alloc) {
-    size_t alignment = CSTL_alignof_type(type);
+    size_t alignment = CSTL_type_alignment(type);
 
     if (instance == other_instance) {
         return true;
@@ -205,8 +205,8 @@ bool CSTL_vector_move_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveT
 bool CSTL_vector_assign_n(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, size_t new_size, const void* value, CSTL_Alloc* alloc) {
     CSTL_SmallAllocFrame frame;
 
-    size_t alignment = CSTL_alignof_type(type);
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t alignment = CSTL_type_alignment(type);
+    size_t type_size = CSTL_type_size(type);
     size_t new_bytes = 0;
 
     if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_size)) {
@@ -263,8 +263,8 @@ bool CSTL_vector_assign_n(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyType
 bool CSTL_vector_copy_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, const void* range_first, const void* range_last, CSTL_Alloc* alloc) {
     CSTL_SmallAllocFrame frame;
 
-    size_t alignment = CSTL_alignof_type(type);
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t alignment = CSTL_type_alignment(type);
+    size_t type_size = CSTL_type_size(type);
     size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     char* first = instance->first;
@@ -319,8 +319,8 @@ bool CSTL_vector_copy_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL
 bool CSTL_vector_move_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, void* range_first, void* range_last, CSTL_Alloc* alloc) {
     CSTL_SmallAllocFrame frame;
 
-    size_t alignment = CSTL_alignof_type(type);
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t alignment = CSTL_type_alignment(type);
+    size_t type_size = CSTL_type_size(type);
     size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     char* first = instance->first;
@@ -387,7 +387,7 @@ void CSTL_vector_swap(CSTL_VectorRef instance, CSTL_VectorRef other_instance) {
 }
 
 void* CSTL_vector_index(CSTL_VectorRef instance, CSTL_Type type, size_t pos) {
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t type_size = CSTL_type_size(type);
     size_t pos_bytes = pos * type_size;
 
     assert(pos_bytes / type_size == pos);
@@ -401,7 +401,7 @@ const void* CSTL_vector_const_index(CSTL_VectorCRef instance, CSTL_Type type, si
 }
 
 void* CSTL_vector_at(CSTL_VectorRef instance, CSTL_Type type, size_t pos) {
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t type_size = CSTL_type_size(type);
     size_t pos_bytes = 0;
 
     if (!CSTL_vector_checked_mul(&pos_bytes, type_size, pos)) {
@@ -432,7 +432,7 @@ const void* CSTL_vector_const_front(CSTL_VectorCRef instance) {
 
 void* CSTL_vector_back(CSTL_VectorRef instance, CSTL_Type type) {
     assert(!CSTL_vector_empty(instance));
-    return (char*)instance->last - CSTL_sizeof_type(type);
+    return (char*)instance->last - CSTL_type_size(type);
 }
 
 const void* CSTL_vector_const_back(CSTL_VectorCRef instance, CSTL_Type type) {
@@ -450,7 +450,7 @@ const void* CSTL_vector_const_data(CSTL_VectorCRef instance) {
 CSTL_VectorIter CSTL_vector_begin(CSTL_VectorCRef instance, CSTL_Type type) {
     CSTL_VectorIter iterator = {
         .pointer = instance->first,
-        .size = CSTL_sizeof_type(type),
+        .size = CSTL_type_size(type),
     };
 
     CSTL_set_iterator_owner(&iterator, instance);
@@ -461,7 +461,7 @@ CSTL_VectorIter CSTL_vector_begin(CSTL_VectorCRef instance, CSTL_Type type) {
 CSTL_VectorIter CSTL_vector_end(CSTL_VectorCRef instance, CSTL_Type type) {
     CSTL_VectorIter iterator = {
         .pointer = instance->last,
-        .size = CSTL_sizeof_type(type),
+        .size = CSTL_type_size(type),
     };
 
     CSTL_set_iterator_owner(&iterator, instance);
@@ -533,20 +533,20 @@ bool CSTL_vector_empty(CSTL_VectorCRef instance) {
 }
 
 size_t CSTL_vector_size(CSTL_VectorCRef instance, CSTL_Type type) {
-    return CSTL_vector_size_bytes(instance) / CSTL_sizeof_type(type);
+    return CSTL_vector_size_bytes(instance) / CSTL_type_size(type);
 }
 
 size_t CSTL_vector_capacity(CSTL_VectorCRef instance, CSTL_Type type) {
-    return CSTL_vector_capacity_bytes(instance) / CSTL_sizeof_type(type);
+    return CSTL_vector_capacity_bytes(instance) / CSTL_type_size(type);
 }
 
 size_t CSTL_vector_max_size(CSTL_Type type) {
-    return (size_t)(PTRDIFF_MAX - 1) / CSTL_sizeof_type(type);
+    return (size_t)(PTRDIFF_MAX - 1) / CSTL_type_size(type);
 }
 
 bool CSTL_vector_resize(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCRef copy, size_t new_size, const void* value, CSTL_Alloc* alloc) {
-    size_t alignment = CSTL_alignof_type(type);
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t alignment = CSTL_type_alignment(type);
+    size_t type_size = CSTL_type_size(type);
     size_t new_bytes = 0;
 
     if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_size)) {
@@ -590,7 +590,7 @@ bool CSTL_vector_resize(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyTypeCR
 }
 
 void CSTL_vector_truncate(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropTypeCRef drop, size_t new_size) {
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t type_size = CSTL_type_size(type);
     size_t new_bytes = 0;
 
     if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_size)) {
@@ -612,8 +612,8 @@ void CSTL_vector_truncate(CSTL_VectorRef instance, CSTL_Type type, CSTL_DropType
 
 bool CSTL_vector_reserve(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, size_t new_capacity, CSTL_Alloc* alloc) {
     // increase capacity to new_capacity (without geometric growth)
-    size_t alignment = CSTL_alignof_type(type);
-    size_t type_size = CSTL_sizeof_type(type);
+    size_t alignment = CSTL_type_alignment(type);
+    size_t type_size = CSTL_type_size(type);
     size_t new_bytes = 0;
 
     if (!CSTL_vector_checked_mul(&new_bytes, type_size, new_capacity)) {
@@ -628,7 +628,7 @@ bool CSTL_vector_reserve(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeC
 }
 
 bool CSTL_vector_shrink_to_fit(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveTypeCRef move, CSTL_Alloc* alloc) {
-    size_t alignment = CSTL_alignof_type(type);
+    size_t alignment = CSTL_type_alignment(type);
 
     void* old_last = instance->last;
 

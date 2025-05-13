@@ -337,7 +337,7 @@ size_t CSTL_vector_capacity(CSTL_VectorCRef instance, CSTL_Type type);
 /**
  * Returns the maximum possible number of elements in the vector.
  * 
- * As if by `(PTRDIFF_MAX - 1) / CSTL_sizeof_type(type)`.
+ * As if by `(PTRDIFF_MAX - 1) / CSTL_type_size(type)`.
  * 
  */
 size_t CSTL_vector_max_size(CSTL_Type type);

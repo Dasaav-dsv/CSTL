@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <limits.h>
 
-extern inline size_t CSTL_sizeof_type(CSTL_Type type);
-extern inline size_t CSTL_alignof_type(CSTL_Type type);
-
 CSTL_Type CSTL_define_type(size_t size, size_t alignment) {
     if (size == 0 || size > (uintptr_t)INTPTR_MAX) {
         // `size` is zero or too big.
@@ -31,4 +28,12 @@ CSTL_Type CSTL_define_type(size_t size, size_t alignment) {
     } else {
         return (CSTL_Type)-(isize | ialign);
     }
+}
+
+size_t CSTL_sizeof_type(CSTL_Type type) {
+    return CSTL_type_size(type);
+}
+
+size_t CSTL_alignof_type(CSTL_Type type) {
+    return CSTL_type_alignment(type);
 }
