@@ -123,7 +123,7 @@ static inline void* CSTL_vector_sized_move(size_t type_size, CSTL_MoveTypeCRef m
 }
 
 static inline void* CSTL_vector_sized_move_backwards(size_t type_size, CSTL_MoveTypeCRef move, void* first, void* last, void* dest) {
-    while ((char*)first < last) {
+    while ((char*)first < (char*)last) {
         void* dest_prev = dest;
         dest = (char*)dest - type_size;
         void* last_prev = last;
