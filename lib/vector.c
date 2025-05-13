@@ -2,7 +2,7 @@
 
 #ifndef NDEBUG
 static inline bool CSTL_verify_address(CSTL_VectorCRef instance, const char* address) {
-    return address >= instance->first && address <= instance->last;
+    return address >= (const char*)instance->first && address <= (const char*)instance->last;
 }
 
 #define CSTL_verify_iterator(iterator) \
@@ -51,7 +51,7 @@ static inline bool CSTL_vector_checked_mul(size_t* bytes, size_t type_size, size
 }
 
 static inline size_t CSTL_vector_growth_bytes(CSTL_VectorCRef instance, size_t type_size, size_t new_bytes) {
-    size_t old_bytes = (size_t)((char*)instance->end - instance->first);
+    size_t old_bytes = (size_t)((char*)instance->end - (char*)instance->first);
     size_t max_bytes = CSTL_vector_bytes_max(type_size);
 
     if (old_bytes > max_bytes - old_bytes) {
@@ -111,7 +111,7 @@ static inline bool CSTL_vector_reallocate_bytes(CSTL_VectorRef instance, size_t 
 }
 
 static inline void* CSTL_vector_sized_move(size_t type_size, CSTL_MoveTypeCRef move, void* first, void* last, void* dest) {
-    while ((char*)first < last) {
+    while ((char*)first < (char*)last) {
         void* dest_next = (char*)dest + type_size;
         move->drop_type.drop(dest, dest_next);
         void* first_next = (char*)first + type_size;
@@ -155,7 +155,7 @@ bool CSTL_vector_copy_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_CopyT
 
     if (propagate_alloc) {
         if (alloc != other_alloc) {
-            size_t new_bytes = (size_t)((char*)other_instance->last - other_instance->first);
+            size_t new_bytes = (size_t)((char*)other_instance->last - (char*)other_instance->first);
 
             if (!CSTL_vector_reallocate_bytes(instance, CSTL_alignof_type(type),
                 &copy->move_type, new_bytes, alloc, other_alloc)) {
@@ -178,7 +178,7 @@ bool CSTL_vector_move_assign(CSTL_VectorRef instance, CSTL_Type type, CSTL_MoveT
 
     if (!propagate_alloc) {
         if (alloc != other_alloc) {
-            size_t new_bytes = (size_t)((char*)other_instance->last - other_instance->first);
+            size_t new_bytes = (size_t)((char*)other_instance->last - (char*)other_instance->first);
 
             if (!CSTL_vector_reallocate_bytes(instance, alignment, move, new_bytes, alloc, other_alloc)) {
                 return false;
@@ -265,7 +265,7 @@ bool CSTL_vector_copy_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL
 
     size_t alignment = CSTL_alignof_type(type);
     size_t type_size = CSTL_sizeof_type(type);
-    size_t new_bytes = (size_t)((char*)range_last - range_first);
+    size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     char* first = instance->first;
     char* last  = instance->first;
@@ -321,7 +321,7 @@ bool CSTL_vector_move_assign_range(CSTL_VectorRef instance, CSTL_Type type, CSTL
 
     size_t alignment = CSTL_alignof_type(type);
     size_t type_size = CSTL_sizeof_type(type);
-    size_t new_bytes = (size_t)((char*)range_last - range_first);
+    size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     char* first = instance->first;
     char* last  = instance->first;
@@ -410,7 +410,7 @@ void* CSTL_vector_at(CSTL_VectorRef instance, CSTL_Type type, size_t pos) {
 
     char* pos_at = (char*)instance->first + pos_bytes;
 
-    if (pos_at >= instance->last) {
+    if (pos_at >= (char*)instance->last) {
         return NULL;
     }
 
@@ -511,7 +511,7 @@ ptrdiff_t CSTL_vector_iterator_distance(CSTL_VectorIter lhs, CSTL_VectorIter rhs
     CSTL_verify_iterator(&lhs);
     CSTL_verify_iterator(&rhs);
     assert(lhs.owner == rhs.owner);
-    return ((const char*)rhs.pointer - lhs.pointer) / (ptrdiff_t)lhs.size;
+    return ((const char*)rhs.pointer - (const char*)lhs.pointer) / (ptrdiff_t)lhs.size;
 }
 
 bool CSTL_vector_iterator_eq(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
@@ -525,7 +525,7 @@ bool CSTL_vector_iterator_lt(CSTL_VectorIter lhs, CSTL_VectorIter rhs) {
     CSTL_verify_iterator(&lhs);
     CSTL_verify_iterator(&rhs);
     assert(lhs.owner == rhs.owner);
-    return (const char*)lhs.pointer < rhs.pointer;
+    return (const char*)lhs.pointer < (const char*)rhs.pointer;
 }
 
 bool CSTL_vector_empty(CSTL_VectorCRef instance) {
@@ -679,8 +679,8 @@ CSTL_VectorIter CSTL_vector_insert_n(CSTL_VectorRef instance, CSTL_CopyTypeCRef 
 
     void* where_pointer = (void*)where.pointer;
 
-    size_t where_bytes  = (size_t)((char*)where_pointer - instance->first);
-    size_t unused_bytes = (size_t)((char*)instance->end - instance->last);
+    size_t where_bytes  = (size_t)((char*)where_pointer - (char*)instance->first);
+    size_t unused_bytes = (size_t)((char*)instance->end - (char*)instance->last);
 
     if (new_bytes > unused_bytes) {
         size_t old_bytes = CSTL_vector_size_bytes(instance);
@@ -719,7 +719,7 @@ CSTL_VectorIter CSTL_vector_insert_n(CSTL_VectorRef instance, CSTL_CopyTypeCRef 
         void* old_last    = instance->last;
         void* where_last  = (char*)where_pointer + new_bytes;
 
-        size_t affected_bytes = (size_t)((char*)instance->last - where_pointer);
+        size_t affected_bytes = (size_t)((char*)instance->last - (char*)where_pointer);
 
         if (new_bytes > affected_bytes) {
             void* new_mid  = (char*)old_last + new_bytes - affected_bytes;
@@ -745,7 +745,7 @@ CSTL_VectorIter CSTL_vector_insert_n(CSTL_VectorRef instance, CSTL_CopyTypeCRef 
 void* CSTL_vector_copy_insert_reallocate(CSTL_VectorRef instance, CSTL_CopyTypeCRef copy, size_t type_size, void* where, const void* value, CSTL_Alloc* alloc) {
     size_t fake_alignment = type_size & -type_size;
 
-    size_t where_bytes = (size_t)((char*)where - instance->first);
+    size_t where_bytes = (size_t)((char*)where - (char*)instance->first);
 
     size_t old_bytes = CSTL_vector_size_bytes(instance);
     size_t new_bytes = CSTL_vector_growth_bytes(instance, type_size, old_bytes + type_size);
@@ -777,7 +777,7 @@ void* CSTL_vector_copy_insert_reallocate(CSTL_VectorRef instance, CSTL_CopyTypeC
 void* CSTL_vector_move_insert_reallocate(CSTL_VectorRef instance, CSTL_MoveTypeCRef move, size_t type_size, void* where, void* value, CSTL_Alloc* alloc) {
     size_t fake_alignment = type_size & -type_size;
 
-    size_t where_bytes = (size_t)((char*)where - instance->first);
+    size_t where_bytes = (size_t)((char*)where - (char*)instance->first);
 
     size_t old_bytes = CSTL_vector_size_bytes(instance);
     size_t new_bytes = CSTL_vector_growth_bytes(instance, type_size, old_bytes + type_size);
@@ -881,12 +881,12 @@ CSTL_VectorIter CSTL_vector_copy_insert_range(CSTL_VectorRef instance, CSTL_Copy
 
     size_t type_size = where.size;
     size_t alignment = type_size & -type_size;
-    size_t new_bytes = (size_t)((char*)range_last - range_first);
+    size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     void* where_pointer = (void*)where.pointer;
 
-    size_t where_bytes  = (size_t)((char*)where_pointer - instance->first);
-    size_t unused_bytes = (size_t)((char*)instance->end - instance->last);
+    size_t where_bytes  = (size_t)((char*)where_pointer - (char*)instance->first);
+    size_t unused_bytes = (size_t)((char*)instance->end - (char*)instance->last);
 
     if (new_bytes > unused_bytes) {
         size_t old_bytes = CSTL_vector_size_bytes(instance);
@@ -924,7 +924,7 @@ CSTL_VectorIter CSTL_vector_copy_insert_range(CSTL_VectorRef instance, CSTL_Copy
     } else {
         void* old_last = instance->last;
 
-        size_t affected_bytes = (size_t)((char*)instance->last - where_pointer);
+        size_t affected_bytes = (size_t)((char*)instance->last - (char*)where_pointer);
 
         if (new_bytes > affected_bytes) {
             void* new_mid  = (char*)old_last + new_bytes - affected_bytes;
@@ -957,12 +957,12 @@ CSTL_VectorIter CSTL_vector_move_insert_range(CSTL_VectorRef instance, CSTL_Move
 
     size_t type_size = where.size;
     size_t alignment = type_size & -type_size;
-    size_t new_bytes = (size_t)((char*)range_last - range_first);
+    size_t new_bytes = (size_t)((char*)range_last - (char*)range_first);
 
     void* where_pointer = (void*)where.pointer;
 
-    size_t where_bytes  = (size_t)((char*)where_pointer - instance->first);
-    size_t unused_bytes = (size_t)((char*)instance->end - instance->last);
+    size_t where_bytes  = (size_t)((char*)where_pointer - (char*)instance->first);
+    size_t unused_bytes = (size_t)((char*)instance->end - (char*)instance->last);
 
     if (new_bytes > unused_bytes) {
         size_t old_bytes = CSTL_vector_size_bytes(instance);
@@ -1000,7 +1000,7 @@ CSTL_VectorIter CSTL_vector_move_insert_range(CSTL_VectorRef instance, CSTL_Move
     } else {
         void* old_last = instance->last;
 
-        size_t affected_bytes = (size_t)((char*)instance->last - where_pointer);
+        size_t affected_bytes = (size_t)((char*)instance->last - (char*)where_pointer);
 
         if (new_bytes > affected_bytes) {
             void* new_mid  = (char*)old_last + new_bytes - affected_bytes;
