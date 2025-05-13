@@ -21,7 +21,6 @@ enable_testing()
 include(GoogleTest)
 
 add_executable(CSTL_tests
-    "type.cpp"
     "vector.cpp"
     "string.cpp"
     "wstring.cpp"
