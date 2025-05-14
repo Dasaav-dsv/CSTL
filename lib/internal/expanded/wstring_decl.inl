@@ -38,7 +38,7 @@
  * 
  */
 typedef struct CSTL_WideStringVal {
-    union {
+    union CSTL_WideStringUnion {
         wchar_t buf[CSTL_string_bufsize];
         wchar_t* ptr;
     } bx; // why is it called `_Bx`?

@@ -37,7 +37,7 @@
  * 
  */
 typedef struct CSTL_StringVal {
-    union {
+    union CSTL_StringUnion {
         char buf[CSTL_string_bufsize];
         char* ptr;
     } bx; // why is it called `_Bx`?

@@ -57,7 +57,7 @@ typedef unsigned char char8_t;
  * 
  */
 typedef struct CSTL_String(Val) {
-    union {
+    union CSTL_String(Union) {
         CSTL_char_t buf[CSTL_string_bufsize];
         CSTL_char_t* ptr;
     } bx; // why is it called `_Bx`?
