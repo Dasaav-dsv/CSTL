@@ -468,8 +468,13 @@ CSTL_VectorIter CSTL_vector_end(CSTL_VectorCRef instance, CSTL_Type type) {
 }
 
 CSTL_VectorIter CSTL_vector_iterator_add(CSTL_VectorIter iterator, ptrdiff_t n) {
-    assert(iterator.pointer != NULL);
     CSTL_verify_iterator(&iterator);
+
+    if (n == 0) {
+        return iterator;
+    }
+
+    assert(iterator.pointer != NULL);
 
     const void* new_pointer = (const char*)iterator.pointer
         + n * (ptrdiff_t)iterator.size;
