@@ -20,7 +20,7 @@ static inline size_t CSTL_type_size(CSTL_Type type) {
     intptr_t packed  = (intptr_t)type;
 
     if (packed < 0) {
-        return (size_t)packed ^ alignment;
+        return ((size_t)-packed) ^ alignment;
     } else {
         return (size_t)packed;
     }
