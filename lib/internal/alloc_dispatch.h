@@ -18,7 +18,7 @@ typedef struct CSTL_SmallAllocFrame {
 
 static inline void* CSTL_allocate(size_t size, size_t alignment, CSTL_Alloc* alloc) {
     if (alloc == NULL) {
-#ifdef _CRTALLOCATOR
+#if defined(_CRTALLOCATOR) || defined(_CRT_ALLOCATION_DEFINED)
         return _aligned_malloc(size, alignment);
 #else
         return aligned_alloc(alignment, size);
@@ -32,7 +32,7 @@ static inline void* CSTL_allocate(size_t size, size_t alignment, CSTL_Alloc* all
 
 static inline void CSTL_free(void* memory, size_t size, size_t alignment, CSTL_Alloc* alloc) {
     if (alloc == NULL) {
-#ifdef _CRTALLOCATOR
+#if defined(_CRTALLOCATOR) || defined(_CRT_ALLOCATION_DEFINED)
         _aligned_free(memory);
 #else
         free(memory);
