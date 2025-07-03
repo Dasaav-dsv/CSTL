@@ -21,9 +21,11 @@ enable_testing()
 include(GoogleTest)
 
 add_executable(CSTL_tests
+    "alloc.cpp"
     "vector.cpp"
     "string.cpp"
     "wstring.cpp"
+    "list.cpp"
 )
 
 target_include_directories(CSTL_tests PRIVATE
