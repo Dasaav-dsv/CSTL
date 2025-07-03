@@ -4,7 +4,9 @@ project(CSTL VERSION 1.2.3.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
 
 add_library(CSTL STATIC
+    "lib/alloc.c"
     "lib/type.c"
     "lib/vector.c"
     "lib/xstring.c"
+    "lib/list.c"
 )

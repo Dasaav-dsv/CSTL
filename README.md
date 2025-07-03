@@ -11,12 +11,12 @@ Tests for implemented types can be found at **"/tests/"**.
 | `std::vector`        |`CSTL_VectorVal`      |
 | `std::string`        |`CSTL_StringVal`      |
 | `std::wstring`       |`CSTL_WideStringVal`  |
-| `std::u8string`      |`CSTL_UTF8StringVal`  | 
+| `std::u8string`      |`CSTL_UTF8StringVal`  |
 | `std::u16string`     |`CSTL_UTF16StringVal` |
 | `std::u32string`     |`CSTL_UTF32StringVal` |
 | `std::map`           |                      |
 | `std::set`           |                      |
-| `std::list`          |                      |
+| `std::list`          |`CSTL_ListVal`        |
 | `std::unordered_map` |                      |
 | `std::unordered_set` |                      |
 | `std::deque`         |                      |
